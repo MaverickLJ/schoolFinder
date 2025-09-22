@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SchoolFinder • Resultados</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="styles/result.css">
+</head>
+<body class="sf-results list-compact"><!-- compacto por defecto -->
+
+<!-- ===== NAV ===== -->
+<nav class="navbar navbar-expand-lg bg-white py-3 border-bottom sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+      <i class="bi bi-mortarboard-fill text-primary"></i>SchoolFinder
+    </a>
+
+    <div class="d-flex align-items-center gap-2 order-lg-2">
+      <button id="density" class="btn btn-sm sf-btn-ghost" title="Cambiar densidad">
+        <i class="bi bi-arrows-expand"></i> Compacto
+      </button>
+      <button id="savedBtn" class="btn btn-sm sf-btn-ghost position-relative" title="Guardados">
+        <i class="bi bi-bookmark"></i>
+        <span id="savedCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+      </button>
+      <a class="btn sf-btn-accent rounded-pill" href="#">Soy colegio</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="sf-band-hero sf-hero-soft">
+  <div class="container">
+    <h1 class="display-6 fw-bold mb-1">
+      1200 Centros educativos en <span class="text-primary">Puerto Rico</span>
+    </h1>
+    <p class="text-muted mb-0">Estos son los centros educativos encontrados en nuestra plataforma (no es un ranking).</p>
+  </div>
+</header>
+
+<!-- ===== TOOLBAR ===== -->
+<div class="py-3 border-bottom">
+  <div class="container d-flex flex-wrap align-items-center gap-3">
+    <ul class="nav sf-results-tabs">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabTodos" type="button">Todos</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTop" type="button">Top</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBilingues" type="button">Bilingües</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabValorados" type="button">Más valorados</button></li>
+    </ul>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button id="btnMapMode" class="btn btn-sm sf-btn-ghost" aria-pressed="false"><i class="bi bi-map"></i> Ver mapa</button>
+      <span class="small text-muted">Ordenar</span>
+      <select id="orderSelect" class="form-select form-select-sm" style="width:180px">
+        <option value="relevancia">Relevancia</option>
+        <option value="rating">Mejor valorados</option>
+        <option value="cercanos">Más cercanos</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LISTA ===== -->
+<main id="listView" class="py-4">
+  <div class="container">
+
+    <!-- Filtros superiores (tus controles) -->
+    <div class="filters-card p-3 mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-xl-4 col-md-6"><input id="fQuery" class="form-control" placeholder="Busca tu escuela por nombre o código"></div>
+        <div class="col-xl-3 col-md-6"><select id="fGrades" class="form-select"><option value="">Grado(s)</option><option>Inicial</option><option>Primaria</option><option>Secundaria</option></select></div>
+        <div class="col-xl-3 col-md-6"><select id="fMunicipios" class="form-select"><option value="">Municipio(s)</option><option>San Juan</option><option>Bayamón</option><option>Carolina</option></select></div>
+        <div class="col-xl-2 col-md-6"><select id="fStars" class="form-select"><option value="">Estrellas</option><option value="5">5</option><option value="4">4+</option><option value="3">3+</option></select></div>
+        <div class="col-12 d-flex align-items-center gap-2 mt-2">
+          <input id="fHeadStart" class="form-check-input" type="checkbox">
+          <label class="form-check-label" for="fHeadStart">Mostrar Centros Head Start</label>
+          <button id="btnApplyTop" class="btn btn-primary btn-sm ms-auto"><i class="bi bi-funnel"></i> Aplicar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Sidebar -->
+      <aside class="col-lg-3">
+        <div class="sf-filter-panel">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-funnel"></i><strong>Filtros populares</strong>
+          </div>
+          <div class="form-check form-switch mb-2"><input id="pFast" class="form-check-input" type="checkbox"><label class="form-check-label ms-2" for="pFast">Respuesta rápida</label></div>
+          <div class="form-check form-switch mb-2"><input id="pOpen" class="form-check-input" type="checkbox"><label class="form-check-label ms-2" for="pOpen">Con Open Days</label></div>
+          <div class="form-check form-switch mb-3"><input id="pPhotos" class="form-check-input" type="checkbox"><label class="form-check-label ms-2" for="pPhotos">Con fotos</label></div>
+          <hr>
+          <strong class="mb-2 d-block">Tipo de Centro</strong>
+          <div class="form-check mb-1"><input id="tJardin" class="form-check-input" type="checkbox"><label class="form-check-label" for="tJardin">Jardín Infantil</label></div>
+          <div class="form-check mb-1"><input id="tColegio" class="form-check-input" type="checkbox"><label class="form-check-label" for="tColegio">Colegio</label></div>
+          <div class="form-check"><input id="tInstituto" class="form-check-input" type="checkbox"><label class="form-check-label" for="tInstituto">Instituto</label></div>
+        </div>
+      </aside>
+
+      <!-- Resultados -->
+      <section class="col-lg-9">
+        <div id="resultsList"></div>
+
+        <!-- Skeletons -->
+        <div id="skeletons" class="d-none">
+          <div class="card-skeleton mb-3">
+            <div class="skel line" style="width:60%"></div>
+            <div class="skel line" style="width:90%"></div>
+            <div class="skel line" style="width:40%"></div>
+          </div>
+          <div class="card-skeleton mb-3">
+            <div class="skel line" style="width:70%"></div>
+            <div class="skel line" style="width:85%"></div>
+            <div class="skel line" style="width:50%"></div>
+          </div>
+        </div>
+
+        <!-- Fallback: botón cargar más -->
+        <div class="d-flex justify-content-center mt-3">
+          <button id="loadMore" class="btn sf-btn-ghost">Cargar más</button>
+        </div>
+
+        <!-- Sentinela para IntersectionObserver -->
+        <div id="ioSentinel" class="py-3"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ===== MAPA ===== -->
+<section id="mapView" class="py-3 sf-map-view">
+  <div class="container">
+    <div class="p-3 mb-2 border rounded-3 bg-white shadow-sm">
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>Filtrar resultados</strong>
+        <div class="d-flex gap-2">
+          <button id="btnApplyMap" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Aplicar</button>
+          <button id="btnBackList" class="btn btn-sm sf-btn-ghost"><i class="bi bi-list-ul"></i> Volver a la lista</button>
+        </div>
+      </div>
+    </div>
+    <div id="mapFull" class="sf-map-full border"></div>
+  </div>
+</section>
+
+<!-- ===== TEMPLATE TARJETA ===== -->
+<template id="cardTemplate">
+  <article class="sf-card" data-id="" data-rating="" data-lat="" data-lng="">
+    <div class="d-flex gap-3 align-items-start">
+      <img class="sf-logo" src="" alt="logo" loading="lazy"/>
+      <div class="flex-grow-1">
+        <div class="d-flex flex-wrap justify-content-between align-items-start">
+          <a class="sf-title h6 text-decoration-none" href="#" target="_blank"></a>
+          <span class="badge-state ok d-none"><i class="bi bi-patch-check-fill"></i> Apta</span>
+          <span class="badge-state warn d-none"><i class="bi bi-exclamation-triangle-fill"></i> Reubicada</span>
+        </div>
+
+        <div class="sf-meta-row d-flex flex-wrap align-items-center small text-muted">
+          <span class="pill-rating"><span class="stars"></span><span class="rate-text"></span></span>
+          <span class="loc"><i class="bi bi-geo-alt"></i> <span class="municipio"></span></span>
+        </div>
+
+        <div class="sf-kv-grid sf-dense">
+          <div class="sf-kv"><small>Código</small><span class="codigo"></span></div>
+          <div class="sf-kv"><small>Municipio</small><span class="municipio"></span></div>
+          <div class="sf-kv"><small>Horario</small><span class="horario"></span></div>
+          <div class="sf-kv"><small>Modalidad</small><span class="modalidad"></span></div>
+          <div class="sf-kv"><small>Niveles</small><span class="niveles"></span></div>
+          <div class="sf-kv"><small>Especialidad</small><span class="especialidad"></span></div>
+        </div>
+
+        <div class="sf-badges-condensed mt-2 d-flex flex-wrap gap-2">
+          <span class="badge-attr tipo"></span>
+          <span class="badge-attr genero"></span>
+          <span class="badge-attr idioma"></span>
+        </div>
+      </div>
+      <div class="d-flex flex-column align-items-end gap-2">
+        <button class="btn btn-sm sf-btn-ghost js-save" aria-pressed="false" title="Guardar"><i class="bi bi-bookmark"></i></button>
+        <!-- <a class="btn btn-sm sf-btn-accent" target="_blank">Ver perfil</a> -->
+        <button class="btn btn-sm sf-btn-accent js-quickview" data-id="10001"
+        data-bs-toggle="offcanvas" data-bs-target="#schoolDrawer"
+        aria-controls="schoolDrawer">
+        Ver Perfil
+</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+
+<!-- Offcanvas Bootstrap -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="schoolDrawer"
+     aria-labelledby="schoolDrawerLabel">
+  <div class="offcanvas-header">
+    <h5 id="schoolDrawerLabel" class="mb-0">Cargando...</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="drawerContent" class="small text-muted">Cargando información de la escuela…</div>
+    <div class="mt-3 d-flex gap-2">
+      <a id="drawerProfileLink" class="btn sf-btn-accent">Ver perfil completo</a>
+      <button class="btn sf-btn-ghost" data-bs-dismiss="offcanvas">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer py-4 border-top">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+    <span class="text-muted small">© <span id="year"></span> SchoolFinder. Todos los derechos reservados.</span>
+    <ul class="nav gap-3 small">
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Privacidad</a></li>
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Términos</a></li>
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Soporte</a></li>
+    </ul>
+  </div>
+</footer>
+
+<!-- ===== JS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ===== util ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ===== rating estrellas ===== */
+function paintStars(wrap, rating){
+  const full = Math.floor(rating), half = rating - full >= 0.5;
+  let html='';
+  for(let i=0;i<full;i++) html+='<i class="bi bi-star-fill"></i>';
+  if(half) html+='<i class="bi bi-star-half"></i>';
+  for(let i=full+(half?1:0); i<5; i++) html+='<i class="bi bi-star"></i>';
+  wrap.innerHTML = html;
+}
+
+/* ===== demo data generator (reemplaza por tu API) ===== */
+const SCHOOLS_TOTAL = 1200;
+const PAGE_SIZE = 20;
+const center = {lat: 18.4663, lng: -66.1057}; // San Juan, PR
+
+const municipiosDemo = ["San Juan","Bayamón","Carolina","Ponce","Caguas","Guaynabo","Mayagüez","Arecibo","Fajardo","Humacao"];
+const especialidades = ["Ciencias","Artes","Deportes","Tecnología","Idiomas","STEAM"];
+const nivelesOpts = ["Inicial","K–5","6–8","9–12","K–12","EEE · EEI"];
+const generoOpts = ["Mixto","Solo mujeres","Solo varones"];
+const idiomaOpts = ["Bilingüe","Español","Inglés"];
+const modalidadOpts = ["Regular","Extendido","Nocturno"];
+
+function rand(min,max){ return Math.random()*(max-min)+min }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+
+function fakeSchool(i){
+  const rating = +(rand(3.5,5).toFixed(1));
+  const opiniones = Math.floor(rand(15, 400));
+  const muni = pick(municipiosDemo);
+  const lat = center.lat + rand(-0.35,0.35);
+  const lng = center.lng + rand(-0.35,0.35);
+  const tipo = Math.random() < 0.55 ? "Público" : "Privado";
+  return {
+    id: String(i+1),
+    nombre: (Math.random()<0.5?'Colegio ':'Escuela ') + ['San Martín','Los Ángeles','Nueva Esperanza','Santa María','Innovación','Horizontes'][i%6],
+    codigo: String(10000 + i),
+    municipio: muni,
+    rating, opiniones,
+    horario: "8:00 AM – 3:00 PM",
+    modalidad: pick(modalidadOpts),
+    niveles: pick(nivelesOpts),
+    especialidad: pick(especialidades),
+    genero: pick(generoOpts),
+    idioma: pick(idiomaOpts),
+    tipo,
+    estado: Math.random()<0.9 ? "ok" : "warn",
+    href: "profile.html?id="+(i+1),
+    logo: "https://placehold.co/80/png",
+    lat, lng
+  };
+}
+
+/* === Punto de integración con API ===
+async function fetchSchools(page, pageSize, filters){
+  const qs = new URLSearchParams({page, pageSize, ...filters}).toString();
+  const res = await fetch('/api/schools?'+qs);
+  if(!res.ok) throw new Error('API');
+  return await res.json(); // {items:[], total:1234}
+}
+*/
+function fetchSchoolsDemo(page, pageSize){
+  const start = page * pageSize;
+  const end = Math.min(start + pageSize, SCHOOLS_TOTAL);
+  const items = [];
+  for(let i=start;i<end;i++) items.push(fakeSchool(i));
+  return Promise.resolve({items, total: SCHOOLS_TOTAL});
+}
+
+/* ===== render tarjeta ===== */
+const tpl = $('#cardTemplate');
+function cardFromData(s){
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  node.dataset.id = s.id;
+  node.dataset.rating = s.rating;
+  node.dataset.lat = s.lat; node.dataset.lng = s.lng;
+
+  node.querySelector('.sf-logo').src = s.logo;
+  const title = node.querySelector('.sf-title');
+  title.textContent = s.nombre;
+  title.href = s.href;
+
+  node.querySelector('.rate-text').textContent = `${s.rating} · ${s.opiniones}`;
+  paintStars(node.querySelector('.pill-rating .stars'), s.rating);
+
+  node.querySelectorAll('.municipio').forEach(e=> e.textContent = s.municipio);
+  node.querySelector('.codigo').textContent = s.codigo;
+  node.querySelector('.horario').textContent = s.horario;
+  node.querySelector('.modalidad').textContent = s.modalidad;
+  node.querySelector('.niveles').textContent = s.niveles;
+  node.querySelector('.especialidad').textContent = s.especialidad;
+
+  node.querySelector('.tipo').innerHTML = `<i class="bi ${s.tipo==='Privado'?'bi-shield-lock':'bi-bank'}"></i> ${s.tipo}`;
+  node.querySelector('.genero').innerHTML = `<i class="bi ${s.genero==='Solo mujeres'?'bi-gender-female':s.genero==='Solo varones'?'bi-gender-male':'bi-gender-ambiguous'}"></i> ${s.genero}`;
+  node.querySelector('.idioma').innerHTML = `<i class="bi bi-translate"></i> ${s.idioma}`;
+  node.querySelector('.sf-btn-accent').href = s.href;
+
+  node.querySelector('.badge-state.' + (s.estado==='ok'?'ok':'warn')).classList.remove('d-none');
+  return node;
+}
+
+/* ===== estado y paginación infinita ===== */
+let page = 0;
+let loading = false;
+let loaded = 0;
+let total = SCHOOLS_TOTAL;
+
+const resultsList = $('#resultsList');
+const skeletons = $('#skeletons');
+const loadMoreBtn = $('#loadMore');
+
+async function loadNextPage(){
+  if(loading) return;
+  if(loaded >= total) return;
+  loading = true;
+  skeletons.classList.remove('d-none');
+
+  // Reemplaza por fetchSchools(page,PAGE_SIZE, currentFilters)
+  const {items, total: t} = await fetchSchoolsDemo(page, PAGE_SIZE);
+  total = t;
+
+  const frag = document.createDocumentFragment();
+  items.forEach(s => frag.appendChild(cardFromData(s)));
+  resultsList.appendChild(frag);
+
+  loaded += items.length;
+  page += 1;
+  skeletons.classList.add('d-none');
+  loading = false;
+
+  // init acciones nuevas tarjetas
+  initSavesForNewCards();
+  if(map) renderMarkers(); // sync mapa
+  if(loaded >= total){ loadMoreBtn.classList.add('d-none'); observer?.disconnect(); }
+}
+
+loadMoreBtn.addEventListener('click', loadNextPage);
+
+/* IntersectionObserver para infinite scroll */
+const sentinel = $('#ioSentinel');
+const observer = new IntersectionObserver((entries)=>{
+  for(const e of entries){
+    if(e.isIntersecting){ loadNextPage(); }
+  }
+},{rootMargin:'600px 0px'});
+
+/* ===== Guardados ===== */
+const STORAGE_KEY = 'sf_saved';
+const savedCount = $('#savedCount');
+function getSaved(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; } }
+function setSaved(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); savedCount.textContent = arr.length; }
+setSaved(getSaved());
+
+function initSavesForNewCards(){
+  $$('.sf-card .js-save:not(.wired)').forEach(btn=>{
+    btn.classList.add('wired');
+    const id = btn.closest('.sf-card').dataset.id;
+    if(getSaved().includes(id)){ btn.setAttribute('aria-pressed','true'); btn.innerHTML='<i class="bi bi-bookmark-fill"></i>'; }
+    btn.addEventListener('click', ()=>{
+      let cur = getSaved(); const idx = cur.indexOf(id);
+      if(idx>-1){ cur.splice(idx,1); btn.setAttribute('aria-pressed','false'); btn.innerHTML='<i class="bi bi-bookmark"></i>'; }
+      else{ cur.push(id); btn.setAttribute('aria-pressed','true'); btn.innerHTML='<i class="bi bi-bookmark-fill"></i>'; }
+      setSaved(cur);
+    });
+  });
+}
+
+/* ===== compact toggle ===== */
+$('#density').addEventListener('click', ()=> document.body.classList.toggle('list-compact'));
+
+/* ===== Lista <-> Mapa ===== */
+let map, markers = [];
+function schoolsFromDOM(){
+  return $$('.sf-card').map(c => ({
+    id: c.dataset.id,
+    el: c,
+    name: c.querySelector('.sf-title').textContent.trim(),
+    lat: parseFloat(c.dataset.lat), lng: parseFloat(c.dataset.lng),
+    href: c.querySelector('.sf-title').href
+  })).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+}
+function initMap(){
+  if (map) { map.invalidateSize(); return; }
+  map = L.map('mapFull').setView([center.lat, center.lng], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  renderMarkers();
+}
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m)); markers = [];
+  const schools = schoolsFromDOM();
+  const bounds = [];
+  schools.forEach(s=>{
+    const mk = L.marker([s.lat,s.lng]).addTo(map)
+      .bindPopup(`<strong>${s.name}</strong><br><a href="${s.href}" target="_blank">Ver perfil</a>`);
+    mk.on('click', ()=>{
+      $$('.sf-card').forEach(c=>c.classList.remove('is-active'));
+      s.el.classList.add('is-active');
+      s.el.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+    s.el.addEventListener('mouseenter', ()=> mk.openPopup());
+    markers.push(mk); bounds.push([s.lat,s.lng]);
+  });
+  if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
+}
+$('#btnMapMode').addEventListener('click', ()=>{
+  $('#listView').style.display='none';
+  $('#mapView').style.display='block';
+  setTimeout(()=>{ initMap(); }, 150);
+});
+$('#btnBackList').addEventListener('click', ()=>{
+  $('#mapView').style.display='none';
+  $('#listView').style.display='block';
+  window.scrollTo({top: resultsList.offsetTop - 80, behavior:'smooth'});
+});
+
+/* ===== filtros (stub) ===== */
+$('#btnApplyTop').addEventListener('click', ()=>{
+  // Lee valores de filtros, reinicia la lista y vuelve a cargar:
+  page=0; loaded=0; resultsList.innerHTML='';
+  if(map) renderMarkers();
+  loadNextPage();
+});
+$('#btnApplyMap').addEventListener('click', ()=>{ if(map) renderMarkers(); });
+$('#orderSelect').addEventListener('change', ()=>{ /* TODO: ordenar */ });
+
+/* ===== bootstrap ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  observer.observe(sentinel);
+  loadNextPage();           // primer lote
+  initSavesForNewCards();   // inicial
+});
+
+const drawerEl = document.getElementById('schoolDrawer');
+const drawer = new bootstrap.Offcanvas(drawerEl);
+const titleEl = drawerEl.querySelector('#schoolDrawerLabel');
+const contentEl = drawerEl.querySelector('#drawerContent');
+const profileLink = drawerEl.querySelector('#drawerProfileLink');
+
+function loadSchoolQuick(id){
+  // TODO: integra tu API real. Aquí un mock.
+  // fetch(`/api/schools/${id}/summary`).then(r=>r.json()).then(data=>{ ... })
+  const data = {
+    id,
+    name: 'Colegio San Martín',
+    municipio: 'Caguas',
+    rating: 4.6, opiniones: 160,
+    horarios: '8:00 AM – 3:00 PM',
+    niveles: 'K–12', modalidad: 'Extendido',
+    especialidad: 'Ciencias',
+    bilingue: true,
+    perfilUrl: `/escuelas/${id}`
+  };
+  titleEl.textContent = data.name;
+  contentEl.innerHTML = `
+    <div class="d-flex gap-3 align-items-start">
+      <img src="https://placehold.co/80x80" class="rounded" alt="" />
+      <div>
+        <div><i class="bi bi-geo-alt"></i> ${data.municipio}</div>
+        <div class="mt-1"><i class="bi bi-star-fill text-warning"></i> ${data.rating} · ${data.opiniones} opiniones</div>
+        <hr class="my-2">
+        <div><strong>Horario:</strong> ${data.horarios}</div>
+        <div><strong>Niveles:</strong> ${data.niveles}</div>
+        <div><strong>Modalidad:</strong> ${data.modalidad}</div>
+        <div><strong>Especialidad:</strong> ${data.especialidad}</div>
+        ${data.bilingue ? '<span class="badge-attr mt-2"><i class="bi bi-translate"></i> Bilingüe</span>' : ''}
+      </div>
+    </div>`;
+  profileLink.href = data.perfilUrl;
+}
+
+document.querySelectorAll('.js-quickview').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    const id = btn.dataset.id;
+    loadSchoolQuick(id);
+    // URL compartible
+    history.pushState({ school:id }, '', `?school=${id}`);
+  });
+});
+
+// Cierra → limpia la URL si traía ?school
+drawerEl.addEventListener('hidden.bs.offcanvas', ()=>{
+  const url = new URL(location.href);
+  if (url.searchParams.get('school')) {
+    url.searchParams.delete('school');
+    history.replaceState({}, '', url.pathname + url.search);
+  }
+});
+
+// Al cargar, reabrir si viene con ?school=ID
+window.addEventListener('DOMContentLoaded', ()=>{
+  const url = new URL(location.href);
+  const id = url.searchParams.get('school');
+  if (id){
+    loadSchoolQuick(id);
+    drawer.show();
+  }
+});
+
+</script>
+</body>
+</html>

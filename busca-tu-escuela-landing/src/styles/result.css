@@ -1,0 +1,243 @@
+/* ====== SchoolFinder Resultados ====== */
+.sf-results {
+  --sf-brand: #4e7184;
+  --sf-accent: #f7931e;
+  --sf-gray: #666;
+  --sf-light: #f5f7fa;
+  --sf-border: #e2e8f0;
+  --sf-muted: #64748b;
+}
+
+/* Hero */
+.sf-band-hero {
+  background: linear-gradient(180deg, #f9fafb, #fff 70%);
+}
+
+/* Tabs */
+.sf-results-tabs .nav-link {
+  font-weight: 600;
+  color: var(--sf-gray);
+  border-bottom: 3px solid transparent;
+}
+.sf-results-tabs .nav-link.active {
+  color: #000;
+  border-color: var(--sf-accent);
+}
+
+/* Buttons */
+.sf-btn-ghost {
+  border: 1px solid #ddd;
+  background: #fff;
+}
+.sf-btn-accent {
+  background: var(--sf-accent);
+  border: none;
+  color: #fff;
+}
+.sf-btn-accent:hover {
+  background: #d97b0d;
+}
+
+/* Filtros laterales */
+.sf-filter-panel {
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+/* Filtros superiores sticky */
+.filters-card {
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  position: sticky;
+  top: 72px;
+  z-index: 10;
+  background: #fff;
+}
+.filters-card .form-control,
+.filters-card .form-select { height: 42px }
+
+/* Cards */
+.sf-card {
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.05);
+  background: #fff;
+  transition: box-shadow .2s ease, border-color .2s ease;
+  padding: 18px;
+}
+.sf-card:hover { box-shadow: 0 6px 16px rgba(0,0,0,.08); }
+.sf-card.is-active { border-color: var(--sf-accent); box-shadow: 0 8px 22px rgba(0,0,0,.12); }
+
+.sf-hdr { display: flex; gap: 12px; align-items:flex-start; }
+.sf-logo { width: 56px; height: 56px; border-radius: 50%; background:#eef2f7; object-fit:cover; }
+.sf-title { margin:0; font-weight:800; line-height:1.2; }
+.sf-stars { color:#f59e0b; }
+.sf-meta { font-size:.875rem; }
+
+/* Chips unificadas */
+.badge-attr{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border:1px solid var(--sf-border);
+  border-radius:999px; font-weight:600; font-size:.9rem; background:#fff
+}
+.badge-attr i{ color:#6b7280 }
+
+/* Pill rating */
+.pill-rating{
+  display:inline-flex; align-items:center; gap:.45rem;
+  border:1px solid var(--sf-border); padding:4px 8px; border-radius:999px; color:#111
+}
+.pill-rating .stars{ color:#f59e0b }
+
+/* Badge de estado */
+.badge-state{
+  display:inline-flex; gap:.35rem; align-items:center; font-weight:700;
+  padding:.25rem .6rem; border-radius:999px; border:1px solid transparent
+}
+.badge-state.ok{ background:#ecfdf5; color:#059669; border-color:#a7f3d0 }
+.badge-state.warn{ background:#fff7ed; color:#c2410c; border-color:#fed7aa }
+
+/* Key-values (si usas grid de atributos) */
+.sf-kv-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:.5rem 1rem;
+}
+.sf-kv small { text-transform: uppercase; font-weight:600; color:var(--sf-muted); }
+.sf-kv span { display:block; }
+
+/* Card acciones */
+.sf-card-actions {
+  border-top:1px solid #e5e7eb;
+  padding-top:.5rem;
+  display:flex; justify-content:space-between; align-items:center;
+}
+
+/* Map */
+.sf-map-view { display:none; }
+.sf-map-full { height: calc(100vh - 200px); border-radius:12px; }
+
+/* ================== Modo compacto ================== */
+.list-compact .sf-card{ padding:12px }
+.list-compact .sf-logo{ display:none }
+.list-compact .badge-attr{ padding:4px 8px; font-size:.85rem }
+.list-compact .pill-rating{ padding:2px 8px }
+
+/* ================== Skeletons ================== */
+.card-skeleton{ border:1px solid var(--sf-border); border-radius:12px; padding:18px; background:#fff }
+.skel{
+  background:linear-gradient(90deg,#eee 25%,#f5f5f5 37%,#eee 63%);
+  background-size:400% 100%; animation:sh 1.2s infinite
+}
+.skel.line{ height:14px; border-radius:6px; margin-bottom:10px }
+@keyframes sh{ 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+
+/* ==== MAPA (parche seguro, solo tamaño) ==== */
+
+/* 1) Tamaño del contenedor del mapa */
+#mapFull{
+  height: calc(100vh - 180px);   /* ocupa casi toda la ventana */
+  min-height: 420px;             /* seguridad si la pantalla es baja */
+  border-radius: 16px;           /* respeta tu estilo actual */
+}
+
+/* 2) Asegura que Leaflet llene #mapFull (sin romper nada) */
+#mapView #mapFull .leaflet-container{
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+}
+
+/* 3) En móviles, mapa a pantalla completa (opcional) */
+@media (max-width: 767.98px){
+  #mapFull{
+    height: 100dvh;   /* usa toda la altura visible */
+    border-radius: 0; /* full-bleed en mobile */
+  }
+}
+
+/* ====== Compact pro: kv-grid y micro-ajustes ====== */
+
+/* Título con corte elegante para una sola línea */
+.sf-title{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fila rating + ubicación más apretada */
+.sf-meta-row{ gap:.5rem; margin:.15rem 0 .35rem 0; }
+
+/* Grid de atributos (versión densa) */
+.sf-kv-grid.sf-dense{ gap:.35rem .75rem; }
+.sf-kv-grid.sf-dense .sf-kv small{ font-size:.68rem; letter-spacing:.02em; }
+.sf-kv-grid.sf-dense .sf-kv span{ font-size:.82rem; line-height:1.15; color:#111; }
+
+/* En móviles, 1 columna para ahorrar ancho */
+@media (max-width: 576px){
+  .sf-kv-grid{ grid-template-columns: 1fr; }
+}
+
+/* Chips más compactas cuando hay muchas */
+.sf-badges-condensed .badge-attr{ padding:3px 8px; font-size:.82rem; gap:6px; }
+
+/* Menos separación entre tarjetas */
+.sf-card + .sf-card{ margin-top:.6rem; }
+
+/* Acciones inferiores más densas */
+.sf-card-actions{ padding-top:.4rem; }
+
+/* Compacto aún más denso */
+.list-compact .sf-kv-grid.sf-dense .sf-kv small{ font-size:.64rem; }
+.list-compact .sf-kv-grid.sf-dense .sf-kv span{ font-size:.8rem; }
+.list-compact .sf-badges-condensed .badge-attr{ padding:2px 7px; font-size:.78rem; }
+
+/* Rejilla en 2 columnas, estable y alineada arriba */
+#resultsList{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 col */
+  gap: 16px;                 /* separaciones uniformes */
+  align-items: start;        /* que todas arranquen arriba */
+}
+
+/* En móvil 1 columna; en pantallas grandes puedes subir a 3 */
+@media (max-width: 767.98px){
+  #resultsList{ grid-template-columns: 1fr; }
+}
+@media (min-width: 1200px){
+  /* opcional: 3 columnas en desktop grande */
+  /* #resultsList{ grid-template-columns: repeat(3, minmax(0,1fr)); } */
+}
+
+/* Evita que márgenes verticales rompan el grid */
+#resultsList .sf-card{ margin: 0; }
+
+/* Si tenías hover con translate/scale que desplaza el layout, desactívalo o usa solo sombra */
+
+.sf-card:hover{
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+  transition: all .2s ease-in-out;
+}
+
+
+/* === Drawer lateral SchoolFinder === */
+
+/* En pantallas grandes (>= 992px), el drawer ocupa el 70% */
+@media (min-width: 992px) {
+  #schoolDrawer.offcanvas {
+    width: 67vw;      /* 70% del viewport width */
+    max-width: none;  /* elimina el límite default de Bootstrap */
+  }
+}
+
+/* En móviles (< 992px), se mantiene al 100% */
+@media (max-width: 991.98px) {
+  #schoolDrawer.offcanvas {
+    width: 100vw;
+  }
+}
