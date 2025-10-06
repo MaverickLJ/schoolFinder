@@ -1,0 +1,268 @@
+﻿/* ====== SchoolFinder Resultados - Paleta Cálida y Profesional ====== */
+:root {
+  /* Brand (tonos tierra cálidos) */
+  --brand-50:  #faf8f5;
+  --brand-100: #f2ede6;
+  --brand-200: #e6d7c9;
+  --brand-300: #d4b896;
+  --brand-400: #be9467;
+  --brand-500: #a67c52;
+  --brand-600: #8b6441;
+  --brand-700: #6d4d33;
+  --brand-800: #4a3322;
+  --brand-900: #2d1f15;
+
+  /* Accent (terracota) */
+  --accent-50:  #fdf6f4;
+  --accent-100: #fae9e4;
+  --accent-200: #f4d0c4;
+  --accent-300: #e9a894;
+  --accent-400: #dc7a5f;
+  --accent-500: #c85a3a;
+  --accent-600: #a84832;
+  --accent-700: #8a3a2b;
+  --accent-800: #6d2f22;
+  --accent-900: #4a201a;
+
+  /* Neutrales cálidos */
+  --neutral-50:  #fdfcfb;
+  --neutral-100: #f9f7f4;
+  --neutral-200: #f0ebe5;
+  --neutral-300: #e2d6c7;
+  --neutral-400: #c4b59f;
+  --neutral-500: #8b7355;
+  --neutral-600: #6b5b47;
+  --neutral-700: #4d4035;
+  --neutral-800: #332b22;
+  --neutral-900: #1a1611;
+
+  /* Colores para tipos de escuela */
+  --school-elemental: #16a085;
+  --school-intermedia: #e74c3c;
+  --school-superior: #8e44ad;
+  --school-k12: #f39c12;
+
+  /* Aliases semánticos */
+  --brand: var(--brand-500);
+  --accent: var(--accent-500);
+  --surface: #ffffff;
+  --text: var(--neutral-900);
+  --muted: var(--neutral-600);
+  --sf-border: var(--neutral-200);
+}
+
+/* Hero con gradiente cálido */
+.sf-band-hero {
+  background: linear-gradient(160deg, var(--brand-50) 0%, var(--brand-100) 40%, var(--surface) 70%);
+}
+
+/* Cards limpias y cálidas */
+.sf-card {
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(166, 124, 82, 0.06);
+  background: var(--surface);
+  transition: all 0.2s ease;
+  padding: 18px;
+}
+
+.sf-card:hover {
+  box-shadow: 0 6px 20px rgba(166, 124, 82, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Botones cálidos */
+.sf-btn-ghost {
+  border: 1px solid var(--sf-border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.sf-btn-ghost:hover {
+  background: var(--brand-50);
+  border-color: var(--brand-300);
+  color: var(--brand);
+}
+
+.sf-btn-accent {
+  background: var(--accent);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.sf-btn-accent:hover {
+  background: var(--accent-700);
+}
+
+/* Headers */
+.sf-hdr {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.sf-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--brand-50);
+  object-fit: cover;
+}
+
+.sf-title {
+  margin: 0;
+  font-weight: 800;
+  color: var(--text);
+  transition: color 0.2s ease;
+}
+
+.sf-card:hover .sf-title {
+  color: var(--brand);
+}
+
+/* Grid responsive */
+#resultsList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 767.98px) {
+  #resultsList {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Badges para tipos de escuela */
+.badge-attr.tipo[data-type="Elemental"] {
+  background: rgba(22, 160, 133, 0.1);
+  color: var(--school-elemental);
+  border: 1px solid rgba(22, 160, 133, 0.3);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.badge-attr.tipo[data-type="Intermedia"] {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--school-intermedia);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.badge-attr.tipo[data-type="Superior"] {
+  background: rgba(142, 68, 173, 0.1);
+  color: var(--school-superior);
+  border: 1px solid rgba(142, 68, 173, 0.3);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.badge-attr.tipo[data-type="K-12"] {
+  background: rgba(243, 156, 18, 0.1);
+  color: var(--school-k12);
+  border: 1px solid rgba(243, 156, 18, 0.3);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Navbar cálido */
+.navbar {
+  background: rgba(250, 248, 245, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--brand-200);
+  box-shadow: 0 2px 10px rgba(166, 124, 82, 0.08);
+}
+
+.navbar-brand {
+  color: var(--brand) !important;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.navbar-brand:hover {
+  color: var(--brand-600) !important;
+}
+
+/* Forms cálidos */
+.form-control,
+.form-select {
+  border: 1px solid var(--sf-border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+  outline: none;
+}
+
+/* Filtros */
+.filters-card {
+  border: 1px solid var(--sf-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(166, 124, 82, 0.08);
+  background: rgba(250, 248, 245, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+/* Elementos adicionales */
+.sf-meta {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.sf-stars {
+  color: #f39c12;
+}
+
+.badge-attr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--sf-border);
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: var(--surface);
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.badge-attr:hover {
+  background: var(--brand-50);
+  border-color: var(--brand-300);
+}
+
+.pill-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--sf-border);
+  padding: 4px 10px;
+  border-radius: 50px;
+  background: var(--surface);
+  font-size: 0.875rem;
+}
+
+.pill-rating .stars {
+  color: #f39c12;
+}
+

@@ -1,0 +1,2071 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SchoolFinder • Resultados</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="styles/result.css">
+</head>
+<body class="sf-results list-compact"><!-- compacto por defecto -->
+
+<!-- ===== NAV ===== -->
+<nav class="navbar navbar-expand-lg sf-navbar sticky-top">
+  <div class="container">
+    <a class="navbar-brand sf-brand" href="index.html" aria-label="SchoolFinder - Inicio">
+      <div class="brand-icon">
+        <i class="bi bi-mortarboard-fill"></i>
+      </div>
+      <span class="brand-text">SchoolFinder</span>
+    </a>
+
+    <div class="d-flex align-items-center gap-2 order-lg-2">
+      <button id="density" class="btn btn-sm sf-btn-ghost" title="Cambiar densidad">
+        <i class="bi bi-arrows-expand"></i> Compacto
+      </button>
+      <button id="savedBtn" class="btn btn-sm sf-btn-ghost position-relative" title="Guardados">
+        <i class="bi bi-bookmark"></i>
+        <span id="savedCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+      </button>
+      <div class="nav-item dropdown">
+        <button class="btn btn-language dropdown-toggle" id="languageDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <svg class="flag-icon flag-pr" width="20" height="14" viewBox="0 0 20 14">
+            <rect width="20" height="2.8" fill="#FF0000"/>
+            <rect y="2.8" width="20" height="2.8" fill="#FFFFFF"/>
+            <rect y="5.6" width="20" height="2.8" fill="#FF0000"/>
+            <rect y="8.4" width="20" height="2.8" fill="#FFFFFF"/>
+            <rect y="11.2" width="20" height="2.8" fill="#FF0000"/>
+            <polygon points="0,0 8,0 8,14 0,14" fill="#0033CC"/>
+            <polygon points="4,3.5 4.5,5 6,5 4.8,5.8 5.3,7.3 4,6.5 2.7,7.3 3.2,5.8 2,5 3.5,5" fill="#FFFFFF"/>
+          </svg>
+          <span class="lang-text">ES</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end language-menu" aria-labelledby="languageDropdown">
+          <li>
+            <button class="dropdown-item language-item active" data-lang="es">
+              <svg class="flag-icon flag-pr" width="20" height="14" viewBox="0 0 20 14">
+                <rect width="20" height="2.8" fill="#FF0000"/>
+                <rect y="2.8" width="20" height="2.8" fill="#FFFFFF"/>
+                <rect y="5.6" width="20" height="2.8" fill="#FF0000"/>
+                <rect y="8.4" width="20" height="2.8" fill="#FFFFFF"/>
+                <rect y="11.2" width="20" height="2.8" fill="#FF0000"/>
+                <polygon points="0,0 8,0 8,14 0,14" fill="#0033CC"/>
+                <polygon points="4,3.5 4.5,5 6,5 4.8,5.8 5.3,7.3 4,6.5 2.7,7.3 3.2,5.8 2,5 3.5,5" fill="#FFFFFF"/>
+              </svg>
+              <div class="lang-info">
+                <span class="lang-name">Español</span>
+                <small class="lang-region">Puerto Rico</small>
+              </div>
+              <i class="bi bi-check-lg lang-check"></i>
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item language-item" data-lang="en">
+              <svg class="flag-icon flag-us" width="20" height="14" viewBox="0 0 20 14">
+                <rect width="20" height="14" fill="#B22234"/>
+                <rect y="1" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="3" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="5" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="7" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="9" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="11" width="20" height="1" fill="#FFFFFF"/>
+                <rect y="13" width="20" height="1" fill="#FFFFFF"/>
+                <rect width="8" height="7" fill="#3C3B6E"/>
+              </svg>
+              <div class="lang-info">
+                <span class="lang-name">English</span>
+                <small class="lang-region">United States</small>
+              </div>
+              <i class="bi bi-check-lg lang-check"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="sf-band-hero sf-hero-soft">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div class="hero-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <div>
+        <h1 class="display-6 fw-bold mb-1">
+          <span class="hero-number">845</span> Centros educativos en <span class="text-primary">Puerto Rico</span>
+        </h1>
+        <p class="text-muted mb-0">Estos son los centros educativos encontrados en nuestra plataforma (no es un ranking).</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== TOOLBAR MEJORADO ===== -->
+<div class="sf-toolbar">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <ul class="nav sf-results-tabs">
+          <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabTodos" type="button">
+              <i class="bi bi-grid-3x3-gap"></i>
+              <span>Todos</span>
+              <span class="tab-count">845</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTop" type="button">
+              <i class="bi bi-trophy"></i>
+              <span>Top</span>
+              <span class="tab-count">25</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBilingues" type="button">
+              <i class="bi bi-translate"></i>
+              <span>Bilingües</span>
+              <span class="tab-count">156</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabValorados" type="button">
+              <i class="bi bi-star-fill"></i>
+              <span>Más valorados</span>
+              <span class="tab-count">78</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center justify-content-end gap-3">
+          <button id="btnMapMode" class="btn sf-btn-map" aria-pressed="false">
+            <i class="bi bi-geo-alt"></i>
+            <span>Ver mapa</span>
+          </button>
+          <div class="sort-control">
+            <label class="sort-label">Ordenar por:</label>
+            <select id="orderSelect" class="form-select sf-select">
+              <option value="relevancia">📊 Relevancia</option>
+              <option value="rating">⭐ Mejor valorados</option>
+              <option value="cercanos">📍 Más cercanos</option>
+              <option value="alfabetico">🔤 A-Z</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LISTA ===== -->
+<main id="listView" class="py-4">
+  <div class="container">
+
+    <!-- Filtros compactos -->
+    <div class="sf-compact-filters mb-3">
+      <div class="row g-2 align-items-center">
+        <!-- Búsqueda principal -->
+        <div class="col-lg-4 col-md-6">
+          <div class="sf-input-compact">
+            <i class="bi bi-search"></i>
+            <input id="fQuery" placeholder="Busca por nombre o código..." autocomplete="off">
+          </div>
+        </div>
+        
+        <!-- Filtros de selección -->
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <div class="sf-select-compact">
+            <i class="bi bi-mortarboard"></i>
+            <select id="fGrades">
+              <option value="">Grados</option>
+              <option>Inicial</option>
+              <option>Primaria</option>
+              <option>Secundaria</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <div class="sf-select-compact">
+            <i class="bi bi-geo-alt"></i>
+            <select id="fMunicipios">
+              <option value="">Municipios</option>
+              <option>San Juan</option>
+              <option>Bayamón</option>
+              <option>Carolina</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <div class="sf-select-compact">
+            <i class="bi bi-star-fill"></i>
+            <select id="fStars">
+              <option value="">Estrellas</option>
+              <option value="5">5 ⭐</option>
+              <option value="4">4+ ⭐</option>
+              <option value="3">3+ ⭐</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Botón y checkbox -->
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <button id="btnApplyTop" class="sf-btn-compact">
+            <i class="bi bi-funnel-fill"></i>
+            Aplicar
+          </button>
+        </div>
+      </div>
+      
+      <!-- Opción Head Start compacta -->
+      <div class="sf-checkbox-compact mt-2">
+        <input id="fHeadStart" type="checkbox">
+        <label for="fHeadStart">
+          <i class="bi bi-check2"></i>
+          <span>Incluir Centros Head Start</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Sidebar -->
+      <aside class="col-lg-3">
+        <div class="sf-sidebar-filters">
+
+          <!-- Active Filters Preview -->
+          <div class="sf-active-filters" id="activeFiltersPreview" style="display: none;">
+            <div class="sf-active-header">
+              <i class="bi bi-filter-circle"></i>
+              <span>Filtros aplicados</span>
+            </div>
+            <div class="sf-active-tags" id="activeFiltersTags"></div>
+            <button class="sf-clear-filters" id="clearAllFilters">
+              <i class="bi bi-x-circle"></i>
+              Limpiar filtros
+            </button>
+          </div>
+          
+          <!-- Filtros Populares -->
+          <div class="sf-filter-section">
+            <div class="sf-section-header">
+              <i class="bi bi-funnel"></i>
+              <span>Filtros populares</span>
+              <span class="sf-section-badge" id="popularBadge">0</span>
+            </div>
+            
+            <div class="sf-filter-options">
+              <label class="sf-option" data-filter="fast">
+                <input type="checkbox" id="pFast" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-lightning-charge"></i>
+                  <div class="sf-option-text">
+                    <span class="sf-option-title">Respuesta rápida</span>
+                    <span class="sf-option-desc">Contacto en 24h</span>
+                  </div>
+                  <span class="sf-option-count">127</span>
+                </div>
+              </label>
+              
+              <label class="sf-option" data-filter="opendays">
+                <input type="checkbox" id="pOpen" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-calendar-event"></i>
+                  <div class="sf-option-text">
+                    <span class="sf-option-title">Con Open Days</span>
+                    <span class="sf-option-desc">Días de puertas abiertas</span>
+                  </div>
+                  <span class="sf-option-count">89</span>
+                </div>
+              </label>
+              
+              <label class="sf-option" data-filter="photos">
+                <input type="checkbox" id="pPhotos" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-camera"></i>
+                  <div class="sf-option-text">
+                    <span class="sf-option-title">Con fotos</span>
+                    <span class="sf-option-desc">Galería disponible</span>
+                  </div>
+                  <span class="sf-option-count">234</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtro de Distancia -->
+          <div class="sf-filter-section">
+            <div class="sf-section-header">
+              <i class="bi bi-geo-alt"></i>
+              <span>Distancia</span>
+              <span class="sf-section-badge" id="distanceBadge">0</span>
+            </div>
+            
+            <div class="sf-filter-options">
+              <div class="sf-distance-filter">
+                <div class="sf-distance-header">
+                  <span class="sf-distance-label" id="distanceLabel">Cualquier distancia</span>
+                  <span class="sf-distance-value" id="distanceValue"></span>
+                </div>
+                
+                <div class="sf-distance-slider">
+                  <input type="range" id="distanceRange" 
+                         min="0" max="50" step="1" value="50"
+                         class="sf-range-input"
+                         oninput="updateDistanceFilter(this.value)">
+                  <div class="sf-range-track">
+                    <div class="sf-range-fill" id="distanceFill"></div>
+                  </div>
+                </div>
+                
+                <div class="sf-distance-presets">
+                  <button class="sf-distance-preset" onclick="setDistanceFilter(5)">5 mi</button>
+                  <button class="sf-distance-preset" onclick="setDistanceFilter(10)">10 mi</button>
+                  <button class="sf-distance-preset" onclick="setDistanceFilter(25)">25 mi</button>
+                  <button class="sf-distance-preset active" onclick="setDistanceFilter(50)">Todo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tipo de Centro -->
+          <div class="sf-filter-section">
+            <div class="sf-section-header">
+              <i class="bi bi-building"></i>
+              <span>Tipo de Centro</span>
+              <span class="sf-section-badge" id="typeBadge">0</span>
+            </div>
+            
+            <div class="sf-filter-options">
+              <label class="sf-option sf-option-simple" data-filter="jardin">
+                <input type="checkbox" id="tJardin" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-flower1"></i>
+                  <span class="sf-option-title">Jardín Infantil</span>
+                  <span class="sf-option-count">312</span>
+                </div>
+              </label>
+              
+              <label class="sf-option sf-option-simple" data-filter="colegio">
+                <input type="checkbox" id="tColegio" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-mortarboard"></i>
+                  <span class="sf-option-title">Colegio</span>
+                  <span class="sf-option-count">445</span>
+                </div>
+              </label>
+              
+              <label class="sf-option sf-option-simple" data-filter="instituto">
+                <input type="checkbox" id="tInstituto" onchange="updateFilters()">
+                <div class="sf-option-content">
+                  <div class="sf-option-check">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <i class="bi bi-bank"></i>
+                  <span class="sf-option-title">Instituto</span>
+                  <span class="sf-option-count">88</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div class="sf-loading-state" id="filtersLoading" style="display: none;">
+            <div class="sf-loading-spinner"></div>
+            <span>Actualizando resultados...</span>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- Resultados -->
+      <section class="col-lg-9">
+        <div id="resultsList"></div>
+
+        <!-- Skeletons -->
+        <div id="skeletons" class="d-none">
+          <div class="card-skeleton mb-3">
+            <div class="skel line" style="width:60%"></div>
+            <div class="skel line" style="width:90%"></div>
+            <div class="skel line" style="width:40%"></div>
+          </div>
+          <div class="card-skeleton mb-3">
+            <div class="skel line" style="width:70%"></div>
+            <div class="skel line" style="width:85%"></div>
+            <div class="skel line" style="width:50%"></div>
+          </div>
+        </div>
+
+        <!-- Fallback: botón cargar más -->
+        <div class="d-flex justify-content-center mt-3">
+          <button id="loadMore" class="btn sf-btn-ghost">Cargar más</button>
+        </div>
+
+        <!-- Sentinela para IntersectionObserver -->
+        <div id="ioSentinel" class="py-3"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ===== MAPA ===== -->
+<section id="mapView" class="py-3 sf-map-view">
+  <div class="container">
+    <div class="p-3 mb-2 border rounded-3 bg-white shadow-sm">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-geo-alt-fill text-primary"></i>
+          <strong>Mapa de escuelas</strong>
+          <span class="text-muted small">Explora escuelas por ubicación</span>
+        </div>
+        <button id="btnBackList" class="btn btn-sm sf-btn-ghost">
+          <i class="bi bi-list-ul"></i> Volver a la lista
+        </button>
+      </div>
+    </div>
+    <div id="mapFull" class="sf-map-full border"></div>
+  </div>
+</section>
+
+<!-- ===== TEMPLATE TARJETA ===== -->
+<template id="cardTemplate">
+  <article class="sf-card" data-id="" data-rating="" data-lat="" data-lng="">
+    <!-- Header con información principal -->
+    <div class="d-flex gap-3 align-items-start mb-2">
+      <img class="sf-logo" src="" alt="logo" loading="lazy"/>
+      <div class="flex-grow-1">
+        <div class="d-flex flex-wrap justify-content-between align-items-start">
+          <a class="sf-title h6 text-decoration-none" href="#" target="_blank"></a>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge-state ok d-none"><i class="bi bi-patch-check-fill"></i> Apta</span>
+            <span class="badge-state warn d-none"><i class="bi bi-exclamation-triangle-fill"></i> Reubicada</span>
+            <button class="btn btn-sm sf-btn-ghost js-save" aria-pressed="false" title="Guardar"><i class="bi bi-bookmark"></i></button>
+          </div>
+        </div>
+
+        <div class="sf-meta-row d-flex flex-wrap align-items-center small text-muted">
+          <span class="pill-rating"><span class="stars"></span><span class="rate-text"></span></span>
+          <span class="loc"><i class="bi bi-geo-alt"></i> <span class="municipio"></span></span>
+          <span class="distance-info d-none"><i class="bi bi-geo"></i> <span class="distance"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de la escuela -->
+    <div class="sf-kv-grid sf-dense mb-1">
+      <div class="sf-kv"><small>Código</small><span class="codigo"></span></div>
+      <div class="sf-kv"><small>Municipio</small><span class="municipio"></span></div>
+      <div class="sf-kv"><small>Horario</small><span class="horario"></span></div>
+      <div class="sf-kv"><small>Modalidad</small><span class="modalidad"></span></div>
+      <div class="sf-kv"><small>Niveles</small><span class="niveles"></span></div>
+      <div class="sf-kv"><small>Especialidad</small><span class="especialidad"></span></div>
+    </div>
+
+    <!-- Acciones y badges en la misma fila -->
+    <div class="sf-card-actions d-flex justify-content-between align-items-center border-top">
+      <div class="sf-badges-condensed d-flex flex-wrap gap-1">
+        <span class="badge-attr tipo"></span>
+        <span class="badge-attr genero"></span>
+        <span class="badge-attr idioma"></span>
+      </div>
+      
+      <button class="btn sf-btn-profile js-quickview" data-id="10001"
+        data-bs-toggle="offcanvas" data-bs-target="#schoolDrawer"
+        aria-controls="schoolDrawer">
+        <i class="bi bi-eye me-1"></i>Ver Perfil
+      </button>
+    </div>
+  </article>
+</template>
+
+
+<!-- OFFCANVAS: Perfil de la escuela -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="schoolDrawer" aria-labelledby="schoolDrawerLabel">
+  <!-- Botón cerrar personalizado -->
+  <button type="button" class="sd-close-btn" data-bs-dismiss="offcanvas" aria-label="Cerrar">
+    <i class="bi bi-x-lg"></i>
+  </button>
+  
+  <!-- Header oficial con diseño profesional -->
+  <div class="sd-header">
+    <div class="sd-header-content">
+      <img id="sdLogo" src="https://placehold.co/72x72?text=🎓" alt="Logo Escuela" class="sd-logo">
+      <div class="sd-header-title">
+        <h4 id="schoolDrawerLabel">Cargando...</h4>
+        <p id="sdSubtitle">Información de la escuela</p>
+      </div>
+    </div>
+    
+    <div class="sd-badges">
+      <span id="sdLevel" class="sd-badge sd-badge-primary">
+        <i class="bi bi-mortarboard"></i> <span>Primario</span>
+      </span>
+      <span id="sdGrades" class="sd-badge sd-badge-secondary">K–8</span>
+      <span id="sdStatus" class="sd-badge sd-badge-success">
+        <i class="bi bi-patch-check-fill"></i> <span>Apta</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Contenido del modal -->
+  <div class="sd-content">
+    
+    <!-- Sección: Información de Contacto -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-geo-alt-fill"></i>
+        Información de Contacto
+      </div>
+      
+      <div class="sd-info-grid">
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-geo-alt"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Dirección</h6>
+            <p id="sdAddress">Cargando dirección...</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-telephone"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Teléfono</h6>
+            <p><a id="sdPhone" href="#">Cargando...</a></p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-envelope"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Email</h6>
+            <p><a id="sdEmail" href="#">Cargando...</a></p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-card-list"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Código</h6>
+            <p id="sdCode">—</p>
+          </div>
+        </div>
+        
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-building"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Municipio</h6>
+            <p id="sdMunicipio">—</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-clock"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Horario</h6>
+            <p id="sdHorario">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Detalles Oficiales -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-card-text"></i>
+        Detalles de la Escuela
+      </div>
+      
+      <div class="sd-info-grid">
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-mortarboard"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Nivel Educativo</h6>
+            <p id="sdLevel2">PRIMARIO</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-123"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Grados</h6>
+            <p id="sdGrades2">K - 8</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-geo"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Región</h6>
+            <p id="sdRegion">ARECIBO</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Estado</h6>
+            <p id="sdStatusText">Apta para abrir</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-calendar-week"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Modalidad</h6>
+            <p id="sdModalidad2">Horario Regular</p>
+          </div>
+        </div>
+
+        <div class="sd-info-item">
+          <div class="sd-info-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="sd-info-content">
+            <h6>Horario Detallado</h6>
+            <p id="sdHorario2">Lunes a viernes 7:30 AM - 2:30 PM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Calificaciones -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-star-fill"></i>
+        Evaluación por Categorías
+      </div>
+      
+      <div class="sd-rating-grid">
+        <div class="sd-rating-item">
+          <div class="sd-rating-label">Logro Académico</div>
+          <div class="sd-stars" id="sdAcad">
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-empty"></i>
+            <i class="bi bi-star-fill star-empty"></i>
+          </div>
+        </div>
+
+        <div class="sd-rating-item">
+          <div class="sd-rating-label">Calidad de Enseñanza</div>
+          <div class="sd-stars" id="sdCalidad">
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-empty"></i>
+          </div>
+        </div>
+
+        <div class="sd-rating-item">
+          <div class="sd-rating-label">Administración</div>
+          <div class="sd-stars" id="sdAdmin">
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+            <i class="bi bi-star-fill star-filled"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Proficiencia Académica -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-graph-up"></i>
+        Niveles de Proficiencia
+      </div>
+      
+      <div class="sd-proficiency-grid">
+        <div class="sd-prof-item">
+          <div class="sd-prof-header">
+            <span class="sd-prof-label">Español</span>
+            <span class="sd-prof-value" id="p-es">78.50%</span>
+          </div>
+          <div class="sd-prof-bar">
+            <div class="sd-prof-fill" id="f-es" style="width: 78.5%"></div>
+            <div class="sd-prof-goal" id="g-es" style="left: 61%"></div>
+          </div>
+        </div>
+
+        <div class="sd-prof-item">
+          <div class="sd-prof-header">
+            <span class="sd-prof-label">Matemáticas</span>
+            <span class="sd-prof-value" id="p-ma">65.20%</span>
+          </div>
+          <div class="sd-prof-bar">
+            <div class="sd-prof-fill" id="f-ma" style="width: 65.2%"></div>
+            <div class="sd-prof-goal" id="g-ma" style="left: 49%"></div>
+          </div>
+        </div>
+
+        <div class="sd-prof-item">
+          <div class="sd-prof-header">
+            <span class="sd-prof-label">Inglés</span>
+            <span class="sd-prof-value" id="p-en">72.10%</span>
+          </div>
+          <div class="sd-prof-bar">
+            <div class="sd-prof-fill" id="f-en" style="width: 72.1%"></div>
+            <div class="sd-prof-goal" id="g-en" style="left: 56%"></div>
+          </div>
+        </div>
+
+        <div class="sd-prof-item">
+          <div class="sd-prof-header">
+            <span class="sd-prof-label">Ciencias</span>
+            <span class="sd-prof-value" id="p-ci">69.80%</span>
+          </div>
+          <div class="sd-prof-bar">
+            <div class="sd-prof-fill" id="f-ci" style="width: 69.8%"></div>
+            <div class="sd-prof-goal" id="g-ci" style="left: 52%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Métricas Clave -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-bar-chart-fill"></i>
+        Indicadores de Rendimiento
+      </div>
+      
+      <div class="sd-metrics-grid">
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-person-check"></i>
+          </div>
+          <div class="sd-metric-value" id="m-asistencia">94.5%</div>
+          <div class="sd-metric-label">Asistencia</div>
+        </div>
+
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="sd-metric-value" id="m-matricula">485</div>
+          <div class="sd-metric-label">Matrícula</div>
+        </div>
+
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div class="sd-metric-value" id="m-matricula-exp">500</div>
+          <div class="sd-metric-label">Meta Matrícula</div>
+        </div>
+
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-person-workspace"></i>
+          </div>
+          <div class="sd-metric-value" id="m-maestros">28</div>
+          <div class="sd-metric-label">Maestros</div>
+        </div>
+
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-arrow-down-circle"></i>
+          </div>
+          <div class="sd-metric-value" id="m-desercion">2.1%</div>
+          <div class="sd-metric-label">Deserción</div>
+        </div>
+
+        <div class="sd-metric-card">
+          <div class="sd-metric-icon">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <div class="sd-metric-value" id="m-inversion">$8,250</div>
+          <div class="sd-metric-label">Inversión por Estudiante</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Ubicación -->
+    <div class="sd-section">
+      <div class="sd-section-title">
+        <i class="bi bi-map"></i>
+        Ubicación
+      </div>
+      
+      <div id="drawerMap" class="sd-map"></div>
+    </div>
+
+  </div>
+</div>
+<!-- FIN MODAL ESCUELA -->
+
+  </div>
+
+</div>
+
+
+                <label>Horario:</label>
+                <span id="sdHorario2">Lunes a viernes 8:00AM - 3:00PM</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Botón Matrícula en Línea -->
+          <div class="sd-matricula-section mt-3">
+            <div class="matricula-banner">
+              <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzAwNkFEQyIvPgo8cGF0aCBkPSJNMTIgMTZIMjhWMjRIMTJWMTZaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTE2IDEyVjIwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2Zz4K" alt="Matrícula">
+              <div>
+                <strong>MATRÍCULA EN LÍNEA</strong>
+                <p class="mb-0 small">Proceso de matrícula digital del Departamento de Educación</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Star Rating -->
+    <div class="sd-card mt-4">
+      <div class="sd-section-header">
+        <div class="d-flex align-items-center gap-2">
+          <div class="star-rating-icon">
+            <i class="bi bi-award-fill"></i>
+          </div>
+          <div>
+            <h6>Star Rating</h6>
+            <p class="sd-section-subtitle mb-0">Desempeño de las escuelas en 3 dominios de rendimiento. Las escuelas reciben una calificación de 1 a 5 estrellas. <a href="#" class="text-primary">Más información</a></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="official-rating-grid">
+        <div class="rating-column">
+          <label>Aprovechamiento Académico</label>
+          <div class="official-stars" id="sdAcad">
+            ⭐⭐⭐⭐⭐
+          </div>
+        </div>
+        
+        <div class="rating-column">
+          <label>Calidad Escolar</label>
+          <div class="official-stars" id="sdCalidad">
+            ⭐⭐⭐⭐
+          </div>
+        </div>
+        
+        <div class="rating-column">
+          <label>Administración Escolar</label>
+          <div class="official-stars" id="sdAdmin">
+            ⭐⭐⭐⭐⭐
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proficiencia -->
+    <div class="sd-card mt-4">
+      <div class="sd-section-header">
+        <div class="d-flex align-items-center gap-2">
+          <div class="proficiency-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div>
+            <h6>Proficiencia</h6>
+            <p class="sd-section-subtitle mb-0">Porcentaje de estudiantes con desempeño proficiente o avanzado en las pruebas estandarizadas META-PR. <a href="#" class="text-primary">Más información</a></p>
+            <small class="text-muted">Año Académico: 2023-2024</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="official-proficiency-container">
+        <div class="proficiency-subject">
+          <div class="subject-header">
+            <span class="subject-name">Español</span>
+            <span class="subject-percentage" id="p-es">82.48%</span>
+          </div>
+          <div class="progress-bar-official">
+            <div class="progress-fill progress-fill-blue" id="f-es" style="width: 82.48%"></div>
+            <div class="progress-markers">
+              <div class="progress-marker goal-marker" style="left: 80%">
+                <span class="marker-icon">🎯</span>
+                <span class="marker-label">Objetivo 80%</span>
+              </div>
+              <div class="progress-marker avg-marker" style="left: 39.52%">
+                <span class="marker-icon">📊</span>
+                <span class="marker-label">Promedio Isla 39.52%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proficiency-subject">
+          <div class="subject-header">
+            <span class="subject-name">Matemáticas</span>
+            <span class="subject-percentage" id="p-ma">84.78%</span>
+          </div>
+          <div class="progress-bar-official">
+            <div class="progress-fill progress-fill-red" id="f-ma" style="width: 84.78%"></div>
+            <div class="progress-markers">
+              <div class="progress-marker goal-marker" style="left: 73%">
+                <span class="marker-icon">🎯</span>
+                <span class="marker-label">73%</span>
+              </div>
+              <div class="progress-marker avg-marker" style="left: 32.58%">
+                <span class="marker-icon">📊</span>
+                <span class="marker-label">32.58%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proficiency-subject">
+          <div class="subject-header">
+            <span class="subject-name">Inglés</span>
+            <span class="subject-percentage" id="p-en">93.38%</span>
+          </div>
+          <div class="progress-bar-official">
+            <div class="progress-fill progress-fill-green" id="f-en" style="width: 93.38%"></div>
+            <div class="progress-markers">
+              <div class="progress-marker goal-marker" style="left: 77%">
+                <span class="marker-icon">🎯</span>
+                <span class="marker-label">77%</span>
+              </div>
+              <div class="progress-marker avg-marker" style="left: 30.1%">
+                <span class="marker-icon">📊</span>
+                <span class="marker-label">30.1%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proficiency-subject">
+          <div class="subject-header">
+            <span class="subject-name">Ciencia</span>
+            <span class="subject-percentage" id="p-ci">65.22%</span>
+          </div>
+          <div class="progress-bar-official">
+            <div class="progress-fill progress-fill-blue" id="f-ci" style="width: 65.22%"></div>
+            <div class="progress-markers">
+              <div class="progress-marker goal-marker" style="left: 50%">
+                <span class="marker-icon">🎯</span>
+                <span class="marker-label">50%</span>
+              </div>
+              <div class="progress-marker avg-marker" style="left: 38.03%">
+                <span class="marker-icon">📊</span>
+                <span class="marker-label">38.03%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicadores Oficiales -->
+    <div class="row g-3 mt-1">
+      <!-- Tasa de Asistencia -->
+      <div class="col-md-6">
+        <div class="official-metric-card">
+          <div class="metric-icon metric-icon-blue">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="metric-content">
+            <h6>Tasa de Asistencia</h6>
+            <p class="metric-description">Tasa de asistencia de los estudiantes.</p>
+            <div class="metric-values">
+              <div class="metric-main">
+                <span class="metric-number" id="m-asistencia">86.88%</span>
+                <label>Tasa de Asistencia</label>
+                <small>Año Académico: 2023-2024</small>
+              </div>
+              <div class="metric-compare">
+                <span class="metric-number">87.70%</span>
+                <label>Nivel Isla</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matrícula Certificada -->
+      <div class="col-md-6">
+        <div class="official-metric-card">
+          <div class="metric-icon metric-icon-pink">
+            <i class="bi bi-person-check-fill"></i>
+          </div>
+          <div class="metric-content">
+            <h6>Matrícula Certificada</h6>
+            <p class="metric-description">Matrícula certificada al comienzo del año escolar.</p>
+            <div class="metric-values">
+              <div class="metric-main">
+                <span class="metric-number" id="m-matricula">182</span>
+                <label>Matrícula Certificada</label>
+                <small>Año Académico: 2023-2024</small>
+              </div>
+              <div class="metric-compare">
+                <span class="metric-number">169</span>
+                <label>Esperada 2024-2025</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Maestros en la Sala de Clase -->
+      <div class="col-md-6">
+        <div class="official-metric-card">
+          <div class="metric-icon metric-icon-orange">
+            <i class="bi bi-person-workspace"></i>
+          </div>
+          <div class="metric-content">
+            <h6>Maestros en la Sala de Clase</h6>
+            <p class="metric-description">Total de maestros en la escuela.</p>
+            <div class="metric-values">
+              <div class="metric-main">
+                <span class="metric-number" id="m-maestros">18</span>
+                <label>Maestros en la Sala de Clase</label>
+                <small>Año Académico: 2023-2024</small>
+              </div>
+              <div class="metric-compare">
+                <span class="metric-number">23,998</span>
+                <label>Nivel Isla</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasa de Deserción -->
+      <div class="col-md-6">
+        <div class="official-metric-card">
+          <div class="metric-icon metric-icon-teal">
+            <i class="bi bi-arrow-repeat"></i>
+          </div>
+          <div class="metric-content">
+            <h6>Tasa de Deserción Anual</h6>
+            <p class="metric-description">Promedio de estudiantes que se retiró de la escuela sin transferirse a otra escuela u otro programa aprobado.</p>
+            <div class="metric-values">
+              <div class="metric-main">
+                <span class="metric-number" id="m-desercion">6.44%</span>
+                <label>Tasa de Deserción Anual</label>
+                <small>Año Académico: 2023-2024</small>
+              </div>
+              <div class="metric-compare">
+                <span class="metric-number">4.54%</span>
+                <label>Nivel Isla</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inversión por Estudiante -->
+      <div class="col-md-6">
+        <div class="official-metric-card">
+          <div class="metric-icon metric-icon-yellow">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="metric-content">
+            <h6>Inversión por Estudiante</h6>
+            <p class="metric-description">Cantidad invertida por estudiante.</p>
+            <div class="metric-values">
+              <div class="metric-main">
+                <span class="metric-number" id="m-inversion">$17,148</span>
+                <label>Inversión por Estudiante</label>
+                <small>Año Académico: 2022-2023</small>
+              </div>
+              <div class="metric-compare">
+                <span class="metric-number">$14,053</span>
+                <label>Nivel Isla</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer py-4 border-top">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+    <span class="text-muted small">© <span id="year"></span> SchoolFinder. Todos los derechos reservados.</span>
+    <ul class="nav gap-3 small">
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Privacidad</a></li>
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Términos</a></li>
+      <li class="nav-item"><a class="nav-link px-0 text-muted" href="#">Soporte</a></li>
+    </ul>
+  </div>
+</footer>
+
+<!-- ===== JS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ===== util ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ===== rating estrellas ===== */
+function paintStars(wrap, rating){
+  const full = Math.floor(rating), half = rating - full >= 0.5;
+  let html='';
+  for(let i=0;i<full;i++) html+='<i class="bi bi-star-fill"></i>';
+  if(half) html+='<i class="bi bi-star-half"></i>';
+  for(let i=full+(half?1:0); i<5; i++) html+='<i class="bi bi-star"></i>';
+  wrap.innerHTML = html;
+}
+
+/* ===== Sistema de geolocalización y distancias ===== */
+let userLocation = null;
+
+// Obtener ubicación del usuario
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocalización no soportada'));
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        resolve(userLocation);
+      },
+      error => {
+        console.warn('Error obteniendo ubicación:', error);
+        // Si no se puede obtener la ubicación, usar San Juan como referencia
+        userLocation = { lat: 18.4655, lng: -66.1057 };
+        resolve(userLocation);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  });
+}
+
+// Calcular distancia usando fórmula Haversine
+function calculateDistance(lat1, lng1, lat2, lng2) {
+  const R = 3959; // Radio de la Tierra en millas
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+// Formatear distancia
+function formatDistance(miles) {
+  if (miles < 0.1) return '< 0.1 mi';
+  if (miles < 1) return miles.toFixed(1) + ' mi';
+  return miles.toFixed(1) + ' mi';
+}
+
+/* ===== Sistema de colores coordinado con index.html ===== */
+function getSchoolTypeFromNiveles(niveles) {
+  // Mapea niveles educativos a tipos de escuela para colores coordinados
+  if (niveles.includes('K–5') || niveles.includes('Inicial')) return 'Elemental';
+  if (niveles.includes('6–8')) return 'Intermedia';
+  if (niveles.includes('9–12')) return 'Superior';
+  if (niveles.includes('K–12')) return 'K-12';
+  return null;
+}
+
+function getMarkerColorForSchoolType(type) {
+  // Colores coordinados con el mapa del index.html
+  const colorMap = {
+    'Elemental': '#059669',    // Verde esmeralda
+    'Intermedia': '#dc2626',   // Rojo
+    'Superior': '#7c3aed',     // Morado
+    'K-12': '#ea580c'          // Naranja
+  };
+  return colorMap[type] || '#6b7280';
+}
+
+/* ===== demo data generator (reemplaza por tu API) ===== */
+const SCHOOLS_TOTAL = 845;
+const PAGE_SIZE = 20;
+const center = {lat: 18.2208, lng: -66.4512}; // Centro de Puerto Rico
+
+const municipiosDemo = ["San Juan","Bayamón","Carolina","Ponce","Caguas","Guaynabo","Mayagüez","Arecibo","Fajardo","Humacao"];
+const especialidades = ["Ciencias","Artes","Deportes","Tecnología","Idiomas","STEAM"];
+const nivelesOpts = ["Inicial","K–5","6–8","9–12","K–12","EEE · EEI"];
+const generoOpts = ["Mixto","Solo mujeres","Solo varones"];
+const idiomaOpts = ["Bilingüe","Español","Inglés"];
+const modalidadOpts = ["Regular","Extendido","Nocturno"];
+
+function rand(min,max){ return Math.random()*(max-min)+min }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+
+function fakeSchool(i){
+  const rating = +(rand(3.5,5).toFixed(1));
+  const opiniones = Math.floor(rand(15, 400));
+  const muni = pick(municipiosDemo);
+  
+  // Coordenadas más realistas para Puerto Rico
+  // PR está entre lat: 17.88-18.52 y lng: -67.27--65.22
+  const lat = rand(17.95, 18.48);
+  const lng = rand(-67.20, -65.30);
+  
+  const tipo = Math.random() < 0.55 ? "Público" : "Privado";
+  return {
+    id: String(i+1),
+    nombre: (Math.random()<0.5?'Colegio ':'Escuela ') + ['San Martín','Los Ángeles','Nueva Esperanza','Santa María','Innovación','Horizontes'][i%6],
+    codigo: String(10000 + i),
+    municipio: muni,
+    rating, opiniones,
+    horario: "8:00 AM – 3:00 PM",
+    modalidad: pick(modalidadOpts),
+    niveles: pick(nivelesOpts),
+    especialidad: pick(especialidades),
+    genero: pick(generoOpts),
+    idioma: pick(idiomaOpts),
+    tipo,
+    estado: Math.random()<0.9 ? "ok" : "warn",
+    href: "profile.html?id="+(i+1),
+    logo: "https://placehold.co/80/png",
+    lat, lng
+  };
+}
+
+/* === Punto de integración con API ===
+async function fetchSchools(page, pageSize, filters){
+  const qs = new URLSearchParams({page, pageSize, ...filters}).toString();
+  const res = await fetch('/api/schools?'+qs);
+  if(!res.ok) throw new Error('API');
+  return await res.json(); // {items:[], total:1234}
+}
+*/
+function fetchSchoolsDemo(page, pageSize){
+  const start = page * pageSize;
+  const end = Math.min(start + pageSize, SCHOOLS_TOTAL);
+  const items = [];
+  for(let i=start;i<end;i++) items.push(fakeSchool(i));
+  return Promise.resolve({items, total: SCHOOLS_TOTAL});
+}
+
+/* ===== render tarjeta ===== */
+const tpl = $('#cardTemplate');
+function cardFromData(s){
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  node.dataset.id = s.id;
+  node.dataset.rating = s.rating;
+  node.dataset.lat = s.lat; node.dataset.lng = s.lng;
+
+  node.querySelector('.sf-logo').src = s.logo;
+  const title = node.querySelector('.sf-title');
+  title.textContent = s.nombre;
+  title.href = s.href;
+
+  node.querySelector('.rate-text').textContent = `${s.rating} · ${s.opiniones}`;
+  paintStars(node.querySelector('.pill-rating .stars'), s.rating);
+
+  node.querySelectorAll('.municipio').forEach(e=> e.textContent = s.municipio);
+  node.querySelector('.codigo').textContent = s.codigo;
+  node.querySelector('.horario').textContent = s.horario;
+  node.querySelector('.modalidad').textContent = s.modalidad;
+  node.querySelector('.niveles').textContent = s.niveles;
+  node.querySelector('.especialidad').textContent = s.especialidad;
+
+  // Calcular y mostrar distancia si tenemos la ubicación del usuario
+  if (userLocation && s.lat && s.lng) {
+    const distance = calculateDistance(userLocation.lat, userLocation.lng, s.lat, s.lng);
+    const distanceElement = node.querySelector('.distance-info');
+    const distanceText = node.querySelector('.distance');
+    distanceText.textContent = formatDistance(distance);
+    distanceElement.classList.remove('d-none');
+  }
+
+  // Aplicar colores coordinados para tipos de escuela (del index.html)
+  const tipoElement = node.querySelector('.tipo');
+  const tipoIcon = s.tipo==='Privado'?'bi-shield-lock':'bi-bank';
+  tipoElement.innerHTML = `<i class="bi ${tipoIcon}"></i> ${s.tipo}`;
+  
+  // Si hay información de nivel educativo, aplicar colores coordinados
+  if (s.niveles) {
+    const schoolType = getSchoolTypeFromNiveles(s.niveles);
+    if (schoolType) {
+      tipoElement.setAttribute('data-type', schoolType);
+      tipoElement.classList.add(`school-type-${schoolType.toLowerCase()}`);
+    }
+  }
+  
+  node.querySelector('.genero').innerHTML = `<i class="bi ${s.genero==='Solo mujeres'?'bi-gender-female':s.genero==='Solo varones'?'bi-gender-male':'bi-gender-ambiguous'}"></i> ${s.genero}`;
+  node.querySelector('.idioma').innerHTML = `<i class="bi bi-translate"></i> ${s.idioma}`;
+  
+  // Actualizar el botón Ver Perfil (ahora es un button, no un enlace)
+  const profileBtn = node.querySelector('.sf-btn-profile');
+  if (profileBtn) {
+    profileBtn.setAttribute('data-id', s.id);
+    profileBtn.setAttribute('data-href', s.href);
+  }
+
+  node.querySelector('.badge-state.' + (s.estado==='ok'?'ok':'warn')).classList.remove('d-none');
+  return node;
+}
+
+/* ===== estado y paginación infinita ===== */
+let page = 0;
+let loading = false;
+let loaded = 0;
+let total = SCHOOLS_TOTAL;
+
+const resultsList = $('#resultsList');
+const skeletons = $('#skeletons');
+const loadMoreBtn = $('#loadMore');
+
+async function loadNextPage(){
+  if(loading) return;
+  if(loaded >= total) return;
+  loading = true;
+  skeletons.classList.remove('d-none');
+
+  // Reemplaza por fetchSchools(page,PAGE_SIZE, currentFilters)
+  const {items, total: t} = await fetchSchoolsDemo(page, PAGE_SIZE);
+  total = t;
+
+  // Aplicar filtros de distancia a las nuevas escuelas
+  let filteredItems = items;
+  const distanceSlider = document.getElementById('distanceRange');
+  const currentDistance = distanceSlider ? parseInt(distanceSlider.value) : 50;
+  
+  if (currentDistance < 50 && userLocation) {
+    filteredItems = items.filter(school => {
+      const distance = calculateDistance(
+        userLocation.lat, userLocation.lng,
+        school.lat, school.lng
+      );
+      return distance <= currentDistance;
+    });
+  }
+
+  const frag = document.createDocumentFragment();
+  filteredItems.forEach(s => frag.appendChild(cardFromData(s)));
+  resultsList.appendChild(frag);
+
+  loaded += filteredItems.length;
+  page += 1;
+  skeletons.classList.add('d-none');
+  loading = false;
+
+  // init acciones nuevas tarjetas
+  initSavesForNewCards();
+  if(map) renderMarkers(); // sync mapa
+  if(loaded >= total){ loadMoreBtn.classList.add('d-none'); observer?.disconnect(); }
+}
+
+loadMoreBtn.addEventListener('click', loadNextPage);
+
+/* IntersectionObserver para infinite scroll */
+const sentinel = $('#ioSentinel');
+const observer = new IntersectionObserver((entries)=>{
+  for(const e of entries){
+    if(e.isIntersecting){ loadNextPage(); }
+  }
+},{rootMargin:'600px 0px'});
+
+/* ===== Guardados ===== */
+const STORAGE_KEY = 'sf_saved';
+const savedCount = $('#savedCount');
+function getSaved(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){ return []; } }
+function setSaved(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); savedCount.textContent = arr.length; }
+setSaved(getSaved());
+
+function initSavesForNewCards(){
+  $$('.sf-card .js-save:not(.wired)').forEach(btn=>{
+    btn.classList.add('wired');
+    const id = btn.closest('.sf-card').dataset.id;
+    if(getSaved().includes(id)){ btn.setAttribute('aria-pressed','true'); btn.innerHTML='<i class="bi bi-bookmark-fill"></i>'; }
+    btn.addEventListener('click', ()=>{
+      let cur = getSaved(); const idx = cur.indexOf(id);
+      if(idx>-1){ cur.splice(idx,1); btn.setAttribute('aria-pressed','false'); btn.innerHTML='<i class="bi bi-bookmark"></i>'; }
+      else{ cur.push(id); btn.setAttribute('aria-pressed','true'); btn.innerHTML='<i class="bi bi-bookmark-fill"></i>'; }
+      setSaved(cur);
+    });
+  });
+}
+
+/* ===== compact toggle ===== */
+$('#density').addEventListener('click', ()=> document.body.classList.toggle('list-compact'));
+
+/* ===== Lista <-> Mapa ===== */
+let map, markers = [];
+function schoolsFromDOM(){
+  return $$('.sf-card').map(c => ({
+    id: c.dataset.id,
+    el: c,
+    name: c.querySelector('.sf-title').textContent.trim(),
+    lat: parseFloat(c.dataset.lat), lng: parseFloat(c.dataset.lng),
+    href: c.querySelector('.sf-title').href
+  })).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+}
+function initMap(){
+  if (map) { map.invalidateSize(); return; }
+  map = L.map('mapFull').setView([center.lat, center.lng], 9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  renderMarkers();
+}
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m)); markers = [];
+  const schools = schoolsFromDOM();
+  const bounds = [];
+  schools.forEach(s=>{
+    // Obtener el tipo de escuela del elemento DOM para color coordinado
+    const tipoElement = s.el.querySelector('.tipo[data-type]');
+    const schoolType = tipoElement ? tipoElement.getAttribute('data-type') : null;
+    const markerColor = getMarkerColorForSchoolType(schoolType);
+    
+    // Crear marcador con color coordinado (igual que en index.html)
+    const schoolIcon = L.divIcon({
+      className: 'school-marker-coordinated',
+      html: `<div style="background: ${markerColor}; color: white; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><i class="bi bi-geo-alt-fill" style="transform: rotate(45deg); font-size: 14px;"></i></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+    
+    const mk = L.marker([s.lat,s.lng], { icon: schoolIcon }).addTo(map)
+      .bindPopup(`<strong>${s.name}</strong><br><span style="color: ${markerColor}; font-weight: 600;">${schoolType || 'Tipo no especificado'}</span><br><a href="${s.href}" target="_blank">Ver perfil</a>`);
+    
+    mk.on('click', ()=>{
+      $$('.sf-card').forEach(c=>c.classList.remove('is-active'));
+      s.el.classList.add('is-active');
+      s.el.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+    s.el.addEventListener('mouseenter', ()=> mk.openPopup());
+    markers.push(mk); bounds.push([s.lat,s.lng]);
+  });
+  if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
+}
+$('#btnMapMode').addEventListener('click', ()=>{
+  $('#listView').style.display='none';
+  $('#mapView').style.display='block';
+  setTimeout(()=>{ initMap(); }, 150);
+});
+$('#btnBackList').addEventListener('click', ()=>{
+  $('#mapView').style.display='none';
+  $('#listView').style.display='block';
+  window.scrollTo({top: resultsList.offsetTop - 80, behavior:'smooth'});
+});
+
+/* ===== filtros (stub) ===== */
+$('#btnApplyTop').addEventListener('click', ()=>{
+  // Lee valores de filtros, reinicia la lista y vuelve a cargar:
+  page=0; loaded=0; resultsList.innerHTML='';
+  if(map) renderMarkers();
+  loadNextPage();
+});
+$('#orderSelect').addEventListener('change', ()=>{ /* TODO: ordenar */ });
+
+// Función para actualizar distancias en tarjetas existentes
+function updateDistancesInExistingCards() {
+  if (!userLocation) return;
+  
+  const cards = $$('.sf-card[data-lat][data-lng]');
+  cards.forEach(card => {
+    const lat = parseFloat(card.dataset.lat);
+    const lng = parseFloat(card.dataset.lng);
+    
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
+      const distanceElement = card.querySelector('.distance-info');
+      const distanceText = card.querySelector('.distance');
+      
+      if (distanceElement && distanceText) {
+        distanceText.textContent = formatDistance(distance);
+        distanceElement.classList.remove('d-none');
+      }
+    }
+  });
+}
+
+/* ===== bootstrap ===== */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  observer.observe(sentinel);
+  loadNextPage();           // primer lote
+  initSavesForNewCards();   // inicial
+  
+  // Obtener ubicación del usuario para calcular distancias
+  try {
+    await getUserLocation();
+    updateDistancesInExistingCards();
+    console.log('Ubicación obtenida y distancias calculadas');
+  } catch (error) {
+    console.warn('No se pudo obtener la ubicación:', error);
+  }
+});
+
+const drawerEl = document.getElementById('schoolDrawer');
+const drawer = new bootstrap.Offcanvas(drawerEl);
+
+function loadSchoolQuick(id){
+  // Encontrar la escuela para mostrar su nombre inmediatamente
+  const school = allSchools.find(s => s.id === parseInt(id));
+  
+  // Mostrar estado de carga con nombre de la escuela si está disponible
+  const titleElement = document.getElementById('schoolDrawerLabel');
+  const subtitleElement = document.getElementById('sdSubtitle');
+  
+  if (school) {
+    titleElement.textContent = school.name;
+    subtitleElement.textContent = 'Cargando información...';
+  } else {
+    titleElement.textContent = 'Cargando...';
+    subtitleElement.textContent = 'Información de la escuela';
+  }
+  
+  // Abrir modal inmediatamente con estado de carga
+  const oc = bootstrap.Offcanvas.getOrCreateInstance('#schoolDrawer');
+  oc.show();
+  
+  // Cargar datos completos con una pequeña delay para mejor UX
+  setTimeout(() => {
+    openSchoolDrawer(id);
+  }, 200);
+}
+
+document.querySelectorAll('.js-quickview').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    const id = btn.dataset.id;
+    loadSchoolQuick(id);
+    // URL compartible
+    history.pushState({ school:id }, '', `?school=${id}`);
+  });
+});
+
+// Cierra → limpia la URL si traía ?school
+drawerEl.addEventListener('hidden.bs.offcanvas', ()=>{
+  const url = new URL(location.href);
+  if (url.searchParams.get('school')) {
+    url.searchParams.delete('school');
+    history.replaceState({}, '', url.pathname + url.search);
+  }
+});
+
+// Al cargar, reabrir si viene con ?school=ID
+window.addEventListener('DOMContentLoaded', ()=>{
+  const url = new URL(location.href);
+  const id = url.searchParams.get('school');
+  if (id){
+    loadSchoolQuick(id);
+    drawer.show();
+  }
+});
+
+
+ // Abre el drawer y pinta datos
+  async function openSchoolDrawer(id){
+    // 1) Traer datos (mock de ejemplo)
+    // Reemplaza por: const data = await (await fetch(`/api/schools/${id}`)).json();
+    const data = getMockSchool(id);
+
+    // 2) Pinta encabezado
+    document.getElementById('schoolDrawerLabel').textContent = data.name;
+    document.getElementById('sdSubtitle').textContent = `${data.municipio} • Código: ${data.code}`;
+    document.getElementById('sdLogo').src = data.logo || 'https://placehold.co/64x64';
+    
+    // Actualizar badges con span interno
+    const levelBadge = document.getElementById('sdLevel');
+    levelBadge.querySelector('span').textContent = data.level;
+    
+    document.getElementById('sdGrades').textContent = data.grades;
+    
+    const statusBadge = document.getElementById('sdStatus');
+    statusBadge.className = `sd-badge ${data.status==='Apta' ? 'sd-badge-success' : 'sd-badge-secondary'}`;
+    statusBadge.querySelector('span').textContent = data.status;
+    
+    // Actualizar elementos de la grid oficial
+    setText('sdLevel2', data.level);
+    setText('sdGrades2', data.grades);
+    setText('sdRegion', data.municipio.toUpperCase());
+    setText('sdStatusText', data.status === 'Apta' ? 'Apta para abrir' : data.status);
+    setText('sdModalidad2', 'Horario Regular');
+    setText('sdHorario2', `Lunes a viernes ${data.horario}`);
+
+    // 3) Contacto + ficha
+    setText('sdAddress', data.address);
+    
+    const phoneEl = document.getElementById('sdPhone');
+    phoneEl.textContent = data.phone;
+    phoneEl.href = `tel:${data.phone}`;
+    
+    const emailEl = document.getElementById('sdEmail');
+    emailEl.textContent = data.email;
+    emailEl.href = `mailto:${data.email}`;
+    
+    setText('sdCode', data.code);
+    setText('sdMunicipio', data.municipio);
+    setText('sdModalidad', data.modalidad);
+    setText('sdHorario', data.horario);
+    setText('sdNiveles', data.niveles);
+    setText('sdEspecialidad', data.especialidad);
+
+    // 4) Star rating - actualizar las estrellas
+    document.getElementById('sdAcad').innerHTML = data.starRating.acad;
+    document.getElementById('sdCalidad').innerHTML = data.starRating.calidad;
+    document.getElementById('sdAdmin').innerHTML = data.starRating.admin;
+
+    // 5) Proficiencia (barras)
+    setProg('es', data.proficiency.es, 61);
+    setProg('ma', data.proficiency.ma, 49);
+    setProg('en', data.proficiency.en, 56);
+    setProg('ci', data.proficiency.ci, 52);
+
+    // 6) Indicadores
+    setText('m-asistencia', data.metrics.asistencia);
+    setText('m-matricula', data.metrics.matricula);
+    setText('m-matricula-exp', data.metrics.matriculaEsperada);
+    setText('m-maestros', data.metrics.maestros);
+    setText('m-desercion', data.metrics.desercion);
+    setText('m-inversion', data.metrics.inversion);
+
+    // 7) Mapa estático
+    const mapEl = document.getElementById('drawerMap');
+    mapEl.style.background = `url('https://api.mapbox.com/styles/v1/mapbox/light-v10/static/pin-s+3b82f6(${data.lng},${data.lat})/${data.lng},${data.lat},14/400x200@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw') center/cover no-repeat`;
+    mapEl.innerHTML = `
+      <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">
+        <i class="bi bi-geo-alt-fill"></i> ${data.municipio}
+      </div>
+    `;
+
+    // 8) Mostrar
+    const oc = bootstrap.Offcanvas.getOrCreateInstance('#schoolDrawer');
+    oc.show();
+  }
+
+  function setText(id, val){ document.getElementById(id).textContent = val ?? '—'; }
+  function setProg(key, value, goal){
+    value = Math.max(0, Math.min(100, Number(value)||0));
+    document.getElementById(`p-${key}`).textContent = value.toFixed(2) + '%';
+    document.getElementById(`f-${key}`).style.width = value + '%';
+    document.getElementById(`g-${key}`).style.left = (goal||0) + '%';
+  }
+
+  // Mock rápido para demo (cámbialo por tu API)
+  function getMockSchool(id){
+    // Generar datos coherentes con las tarjetas existentes
+    const schoolData = fakeSchool(parseInt(id) - 1);
+    
+    const addresses = [
+      'CARR 638 HM 5 BO MIRAFLORES ARECIBO PR, 00612',
+      'Ave. Luis Muñoz Rivera #123, Guaynabo PR, 00969',  
+      'Calle Central #456, Bayamón PR, 00961',
+      'Carretera 181 Km 3.2, Carolina PR, 00979',
+      'Ave. José de Diego #789, Ponce PR, 00731'
+    ];
+    
+    const phones = [
+      '(787) 816-8006', '(787) 721-2400', '(787) 786-2885', 
+      '(787) 757-2000', '(787) 843-2000'
+    ];
+    
+    const emails = [
+      `d${10000 + parseInt(id)}@de.pr.gov`,
+      `info@${schoolData.nombre.toLowerCase().replace(/\s+/g, '')}.edu`,
+      `contacto@escuela${id}.pr.gov`
+    ];
+
+    return {
+      id,
+      name: schoolData.nombre,
+      logo: schoolData.logo,
+      level: schoolData.niveles.toUpperCase(),
+      grades: schoolData.niveles === 'Primario' ? 'K–8' : schoolData.niveles === 'Secundario' ? '9–12' : 'K–12',
+      status: schoolData.estado === 'ok' ? 'Apta' : 'Por determinar',
+      code: schoolData.codigo,
+      municipio: schoolData.municipio,
+      modalidad: schoolData.modalidad,
+      horario: schoolData.horario,
+      niveles: schoolData.niveles,
+      especialidad: schoolData.especialidad,
+      address: addresses[parseInt(id) % addresses.length],
+      phone: phones[parseInt(id) % phones.length],
+      email: emails[parseInt(id) % emails.length],
+      lat: schoolData.lat, 
+      lng: schoolData.lng,
+      starRating: { 
+        acad: '★'.repeat(Math.floor(schoolData.rating)), 
+        calidad: '★'.repeat(Math.floor(schoolData.rating)), 
+        admin: '★'.repeat(Math.floor(schoolData.rating - 0.5)) 
+      },
+      proficiency: { 
+        es: rand(75, 95).toFixed(2), 
+        ma: rand(70, 90).toFixed(2), 
+        en: rand(80, 95).toFixed(2), 
+        ci: rand(60, 85).toFixed(2) 
+      },
+      metrics: {
+        asistencia: rand(85, 92).toFixed(2) + '%',
+        matricula: Math.floor(rand(150, 300)).toString(),
+        matriculaEsperada: Math.floor(rand(140, 280)).toString(),
+        maestros: Math.floor(rand(12, 35)).toString(),
+        desercion: rand(2, 8).toFixed(2) + '%',
+        inversion: '$' + Math.floor(rand(12000, 20000)).toLocaleString(),
+      }
+    };
+  }
+
+  // Wire: todos los "Ver perfil"
+  document.querySelectorAll('.js-open-profile').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.preventDefault();
+      const id = btn.dataset.id || btn.closest('[data-id]')?.dataset.id || 1;
+      openSchoolDrawer(id);
+    });
+  });
+
+  // ===== FUNCIONALIDAD DE TABS =====
+  function handleTabClick(tabType) {
+    // Actualizar tabs visuales
+    document.querySelectorAll('.sf-results-tabs .nav-link').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    
+    // Activar el tab clickeado
+    event.currentTarget.classList.add('active');
+    
+    // Filtrar escuelas según el tab
+    const allCards = document.querySelectorAll('[data-school-card]');
+    
+    switch(tabType) {
+      case 'todos':
+        // Resetear a la lista original completa
+        resetToFullList();
+        break;
+        
+      case 'top':
+        // Mostrar solo escuelas top (rating >= 4.5)
+        let topCount = 0;
+        allCards.forEach(card => {
+          const rating = parseFloat(card.querySelector('.rating-number')?.textContent || '0');
+          if (rating >= 4.5) {
+            card.style.display = '';
+            topCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        updateResultsCount(topCount);
+        break;
+        
+      case 'bilingues':
+        // Mostrar solo escuelas bilingües (que tengan "Inglés" en especialidad)
+        let bilingueCount = 0;
+        allCards.forEach(card => {
+          const hasIngles = card.textContent.toLowerCase().includes('inglés') || 
+                           card.textContent.toLowerCase().includes('ingles');
+          if (hasIngles) {
+            card.style.display = '';
+            bilingueCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        updateResultsCount(bilingueCount);
+        break;
+        
+      case 'valorados':
+        // Mostrar solo escuelas más valoradas (rating >= 4.0)
+        let valoradosCount = 0;
+        allCards.forEach(card => {
+          const rating = parseFloat(card.querySelector('.rating-number')?.textContent || '0');
+          if (rating >= 4.0) {
+            card.style.display = '';
+            valoradosCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        updateResultsCount(valoradosCount);
+        break;
+    }
+  }
+  
+  function updateResultsCount(count) {
+    // Actualizar el contador en el hero si existe
+    const heroNumber = document.querySelector('.hero-number');
+    if (heroNumber) {
+      heroNumber.textContent = count;
+    }
+  }
+  
+  function resetToFullList() {
+    // Limpiar la lista actual
+    resultsList.innerHTML = '';
+    
+    // Resetear variables de paginación
+    page = 0;
+    loading = false;
+    loaded = 0;
+    total = SCHOOLS_TOTAL;
+    
+    // Mostrar el botón de cargar más si estaba oculto
+    loadMoreBtn.classList.remove('d-none');
+    
+    // Reconectar el observer para infinite scroll
+    if (observer && sentinel) {
+      observer.observe(sentinel);
+    }
+    
+    // Cargar la primera página
+    loadNextPage();
+    
+    // Actualizar contador al total original
+    updateResultsCount(SCHOOLS_TOTAL);
+  }
+
+  // UX Enhancement Functions
+  function updateFilters() {
+    const activeFilters = [];
+    const filterSections = {popular: 0, type: 0};
+    
+    // Check popular filters
+    if (document.getElementById('pFast')?.checked) {
+      activeFilters.push({name: 'Respuesta rápida', id: 'pFast'});
+      filterSections.popular++;
+    }
+    if (document.getElementById('pOpen')?.checked) {
+      activeFilters.push({name: 'Con Open Days', id: 'pOpen'});
+      filterSections.popular++;
+    }
+    if (document.getElementById('pPhotos')?.checked) {
+      activeFilters.push({name: 'Con fotos', id: 'pPhotos'});
+      filterSections.popular++;
+    }
+    
+    // Check type filters
+    if (document.getElementById('tJardin')?.checked) {
+      activeFilters.push({name: 'Jardín Infantil', id: 'tJardin'});
+      filterSections.type++;
+    }
+    if (document.getElementById('tColegio')?.checked) {
+      activeFilters.push({name: 'Colegio', id: 'tColegio'});
+      filterSections.type++;
+    }
+    if (document.getElementById('tInstituto')?.checked) {
+      activeFilters.push({name: 'Instituto', id: 'tInstituto'});
+      filterSections.type++;
+    }
+    
+    // Update section badges
+    updateSectionBadge('popularBadge', filterSections.popular);
+    updateSectionBadge('typeBadge', filterSections.type);
+    
+    // Update active filters display
+    updateActiveFilters(activeFilters);
+    
+  }
+
+  function updateSectionBadge(badgeId, count) {
+    const badge = document.getElementById(badgeId);
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  function updateActiveFilters(filters) {
+    const activeFiltersPreview = document.getElementById('activeFiltersPreview');
+    const activeFiltersTags = document.getElementById('activeFiltersTags');
+    
+    if (activeFiltersPreview && activeFiltersTags) {
+      if (filters.length > 0) {
+        activeFiltersPreview.style.display = 'block';
+        activeFiltersTags.innerHTML = filters.map(filter => `
+          <div class="sf-active-tag">
+            ${filter.name}
+            <button onclick="removeFilter('${filter.id}')">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        `).join('');
+      } else {
+        activeFiltersPreview.style.display = 'none';
+      }
+    }
+  }
+
+  function removeFilter(filterId) {
+    const checkbox = document.getElementById(filterId);
+    if (checkbox) {
+      checkbox.checked = false;
+      updateFilters();
+    }
+  }
+
+  function clearAllFilters() {
+    // Uncheck all filters
+    document.querySelectorAll('.sf-option input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+    
+    // Reset distance filter
+    resetDistanceFilter();
+    
+    updateFilters();
+  }
+
+  // =============================================
+  // FILTRO DE DISTANCIA
+  // =============================================
+  
+  let maxDistance = 50; // Distancia máxima en millas
+  
+  function updateDistanceFilter(value) {
+    maxDistance = parseInt(value);
+    
+    // Actualizar UI
+    const distanceLabel = document.getElementById('distanceLabel');
+    const distanceValue = document.getElementById('distanceValue');
+    const distanceFill = document.getElementById('distanceFill');
+    const presets = document.querySelectorAll('.sf-distance-preset');
+    
+    // Actualizar textos
+    if (maxDistance >= 50) {
+      distanceLabel.textContent = 'Cualquier distancia';
+      distanceValue.textContent = '';
+    } else {
+      distanceLabel.textContent = 'Hasta';
+      distanceValue.textContent = `${maxDistance} mi`;
+    }
+    
+    // Actualizar barra de progreso
+    const percentage = (maxDistance / 50) * 100;
+    distanceFill.style.width = `${percentage}%`;
+    
+    // Actualizar presets activos
+    presets.forEach(preset => {
+      preset.classList.remove('active');
+      const presetValue = preset.textContent === 'Todo' ? 50 : parseInt(preset.textContent);
+      if (presetValue === maxDistance) {
+        preset.classList.add('active');
+      }
+    });
+    
+    // Filtrar tarjetas por distancia
+    filterCardsByDistance();
+    
+    // Actualizar badge del filtro
+    updateDistanceBadge();
+  }
+  
+  function setDistanceFilter(miles) {
+    const slider = document.getElementById('distanceRange');
+    slider.value = miles;
+    updateDistanceFilter(miles);
+  }
+  
+  function filterCardsByDistance() {
+    if (!userLocation) return;
+    
+    const cards = document.querySelectorAll('.sf-card[data-lat][data-lng]');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      const lat = parseFloat(card.dataset.lat);
+      const lng = parseFloat(card.dataset.lng);
+      
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
+        
+        if (maxDistance >= 50 || distance <= maxDistance) {
+          card.style.display = '';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      }
+    });
+    
+    // Actualizar contador de resultados
+    updateResultsCount(visibleCount);
+  }
+  
+  function updateDistanceBadge() {
+    const badge = document.getElementById('distanceBadge');
+    if (maxDistance < 50) {
+      badge.textContent = '1';
+      badge.style.display = '';
+    } else {
+      badge.textContent = '0';
+      badge.style.display = 'none';
+    }
+  }
+  
+  function resetDistanceFilter() {
+    setDistanceFilter(50);
+  }
+
+  // Agregar event listeners a los tabs
+  document.addEventListener('DOMContentLoaded', function() {
+    // Marcar todas las tarjetas de escuela para facilitar el filtrado
+    document.querySelectorAll('article.card').forEach(card => {
+      card.setAttribute('data-school-card', 'true');
+    });
+    
+    // Agregar listeners a los tabs
+    document.querySelector('[data-bs-target="#tabTodos"]')?.addEventListener('click', () => handleTabClick('todos'));
+    document.querySelector('[data-bs-target="#tabTop"]')?.addEventListener('click', () => handleTabClick('top'));
+    document.querySelector('[data-bs-target="#tabBilingues"]')?.addEventListener('click', () => handleTabClick('bilingues'));
+    document.querySelector('[data-bs-target="#tabValorados"]')?.addEventListener('click', () => handleTabClick('valorados'));
+    
+    // Initialize filters
+    updateFilters();
+    
+    // Event listener para limpiar filtros
+    document.getElementById('clearAllFilters')?.addEventListener('click', clearAllFilters);
+  });
+
+</script>
+</body>
+</html>
