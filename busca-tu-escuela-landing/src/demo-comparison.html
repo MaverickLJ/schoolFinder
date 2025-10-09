@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Modal de Comparación Profesional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles/result.css">
+    <style>
+        body {
+            background: #f8fafc;
+            padding: 2rem 0;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .demo-header {
+            background: linear-gradient(135deg, #4e7184 0%, #6b8ea0 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .demo-content {
+            padding: 2rem;
+        }
+        .tab-content {
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h2><i class="bi bi-graph-up-arrow me-3"></i>Demo: Comparación Profesional de Escuelas</h2>
+            <p class="mb-0">Vista previa de las pestañas Academic y Detalles del modal de comparación</p>
+        </div>
+        
+        <div class="demo-content">
+            <!-- Navigation tabs -->
+            <div class="comparison-tabs">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="overview">
+                        <i class="bi bi-eye"></i>
+                        Vista General
+                    </button>
+                    <button class="tab-btn" data-tab="academics">
+                        <i class="bi bi-mortarboard"></i>
+                        Académico
+                    </button>
+                    <button class="tab-btn" data-tab="details">
+                        <i class="bi bi-list-check"></i>
+                        Detalles
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab content -->
+            <div class="tab-content">
+                <!-- Vista General -->
+                <div class="tab-panel active" id="tab-overview">
+                    <div class="section-header">
+                        <h5>Resumen Comparativo</h5>
+                        <p>Vista rápida de las escuelas seleccionadas</p>
+                    </div>
+                    
+                    <div class="comparison-grid" id="comparisonGrid">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Tab Académico -->
+                <div class="tab-panel" id="tab-academics">
+                    <div class="section-header">
+                        <h5>Comparación Académica</h5>
+                        <p>Rendimiento educativo lado a lado</p>
+                    </div>
+                    
+                    <!-- Comparación académica visual -->
+                    <div class="academic-visual-comparison">
+                        <div class="academic-comparison-grid" id="academicGrid">
+                            <!-- Grid de comparación académica -->
+                        </div>
+                        
+                        <!-- Métricas clave comparativas -->
+                        <div class="key-metrics">
+                            <h6 class="metrics-title">Métricas Clave</h6>
+                            <div class="metrics-comparison-row">
+                                <div class="metric-label">Calificación General</div>
+                                <div class="metric-bars" id="ratingBars">
+                                    <!-- Barras de calificación -->
+                                </div>
+                            </div>
+                            
+                            <div class="metrics-comparison-row">
+                                <div class="metric-label">Nivel Académico</div>
+                                <div class="metric-bars" id="levelBars">
+                                    <!-- Barras de nivel -->
+                                </div>
+                            </div>
+                            
+                            <div class="metrics-comparison-row">
+                                <div class="metric-label">Programas Especiales</div>
+                                <div class="metric-bars" id="programBars">
+                                    <!-- Barras de programas -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Detalles -->
+                <div class="tab-panel" id="tab-details">
+                    <div class="section-header">
+                        <h5>Detalles Lado a Lado</h5>
+                        <p>Comparación detallada de características</p>
+                    </div>
+                    
+                    <!-- Tabla de comparación -->
+                    <div class="clean-comparison-table">
+                        <div class="comparison-features" id="featuresComparison">
+                            <!-- Filas de comparación -->
+                        </div>
+                    </div>
+                    
+                    <!-- Servicios disponibles -->
+                    <div class="services-visual-comparison">
+                        <h6 class="services-header">
+                            <i class="bi bi-check2-square"></i>
+                            Servicios Disponibles
+                        </h6>
+                        <div class="services-comparison-grid" id="servicesComparisonGrid">
+                            <!-- Grid de servicios -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Datos de prueba
+        const demoSchools = [
+            {
+                id: 1,
+                name: "Colegio San José",
+                type: "Privado",
+                gender: "Mixto",
+                language: "Español",
+                rating: "4.8",
+                stars: "★★★★★",
+                location: "San Juan"
+            },
+            {
+                id: 2,
+                name: "Academia Bilingüe del Norte",
+                type: "Privado",
+                gender: "Mixto", 
+                language: "Bilingüe",
+                rating: "4.6",
+                stars: "★★★★☆",
+                location: "Bayamón"
+            }
+        ];
+
+        // Utilidades
+        const $ = s => document.querySelector(s);
+        const $$ = s => Array.from(document.querySelectorAll(s));
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando demo de comparación');
+            
+            // Generar contenido
+            generateOverviewContent();
+            generateAcademicComparison(demoSchools);
+            generateKeyMetricsComparison(demoSchools);
+            generateDetailsComparison(demoSchools);
+            generateServicesComparison(demoSchools);
+            
+            // Inicializar tabs
+            initTabs();
+            
+            console.log('✅ Demo inicializado correctamente');
+        });
+
+        // Sistema de pestañas
+        function initTabs() {
+            const tabBtns = $$('.tab-btn');
+            const tabPanels = $$('.tab-panel');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.dataset.tab;
+                    
+                    // Remover clase active
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanels.forEach(p => p.classList.remove('active'));
+                    
+                    // Activar tab correspondiente
+                    btn.classList.add('active');
+                    const targetPanel = document.getElementById(`tab-${targetTab}`);
+                    if(targetPanel) {
+                        targetPanel.classList.add('active');
+                    }
+                    
+                    console.log(`📋 Cambiando a pestaña: ${targetTab}`);
+                });
+            });
+        }
+
+        // Generar vista general
+        function generateOverviewContent() {
+            const grid = $('#comparisonGrid');
+            if(!grid) return;
+            
+            grid.innerHTML = demoSchools.map(school => `
+                <div class="comparison-card">
+                    <div class="comparison-header">
+                        <h6>${school.name}</h6>
+                        <div class="rating">${school.rating} ${school.stars}</div>
+                    </div>
+                    
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <span class="quick-stat-value">${school.type}</span>
+                            <span class="quick-stat-label">Tipo</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-value">${school.gender}</span>
+                            <span class="quick-stat-label">Género</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-value">${school.language}</span>
+                            <span class="quick-stat-label">Idioma</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-value">${school.rating}</span>
+                            <span class="quick-stat-label">Rating</span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-highlights">
+                        <span class="highlight-badge">${school.type}</span>
+                        <span class="highlight-badge">${school.gender}</span>
+                        <span class="highlight-badge">${school.language}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generar comparación académica
+        function generateAcademicComparison(schools) {
+            console.log('🎓 Generando comparación académica');
+            const academicGrid = $('#academicGrid');
+            if(!academicGrid) return;
+            
+            academicGrid.innerHTML = schools.map(school => `
+                <div class="academic-card">
+                    <div class="academic-card-header">
+                        <div class="school-avatar">${school.name.charAt(0).toUpperCase()}</div>
+                        <div class="school-basic-info">
+                            <h6>${school.name}</h6>
+                            <span class="school-type">${school.type}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="academic-metrics-list">
+                        <div class="academic-metric">
+                            <div class="metric-icon excellence-icon">
+                                <i class="bi bi-award"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-name">Excelencia Académica</span>
+                                <div class="metric-bar-container">
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: ${Math.random() * 40 + 60}%"></div>
+                                    </div>
+                                    <span class="metric-value">${(Math.random() * 40 + 60).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="academic-metric">
+                            <div class="metric-icon performance-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-name">Performance Estudiantil</span>
+                                <div class="metric-bar-container">
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: ${Math.random() * 30 + 70}%"></div>
+                                    </div>
+                                    <span class="metric-value">${(Math.random() * 30 + 70).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="academic-metric">
+                            <div class="metric-icon programs-icon">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-name">Programas Especiales</span>
+                                <div class="metric-bar-container">
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: ${Math.random() * 50 + 50}%"></div>
+                                    </div>
+                                    <span class="metric-value">${Math.floor(Math.random() * 10 + 5)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="academic-metric">
+                            <div class="metric-icon facilities-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-name">Calidad Instalaciones</span>
+                                <div class="metric-bar-container">
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: ${Math.random() * 30 + 70}%"></div>
+                                    </div>
+                                    <span class="metric-value">${(Math.random() * 30 + 70).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="academic-highlights">
+                        <div class="highlight-item">
+                            <i class="bi bi-check-circle text-success"></i>
+                            Acreditación Nacional
+                        </div>
+                        <div class="highlight-item">
+                            <i class="bi bi-trophy text-warning"></i>
+                            Premios Académicos
+                        </div>
+                        <div class="highlight-item">
+                            <i class="bi bi-people text-info"></i>
+                            Profesores Certificados
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generar métricas clave comparativas
+        function generateKeyMetricsComparison(schools) {
+            console.log('📊 Generando métricas clave');
+            
+            // Barras de calificación
+            const ratingBars = $('#ratingBars');
+            if(ratingBars) {
+                ratingBars.innerHTML = schools.map(school => {
+                    const rating = parseFloat(school.rating) * 20; // Convertir a porcentaje
+                    return `
+                        <div class="comparison-metric-row">
+                            <div class="school-name-label">${school.name.substring(0, 20)}${school.name.length > 20 ? '...' : ''}</div>
+                            <div class="metric-bar-wrapper">
+                                <div class="metric-progress-bar">
+                                    <div class="metric-progress-fill rating-fill" style="width: ${rating}%"></div>
+                                </div>
+                                <span class="metric-result">${school.rating}/5</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Barras de nivel académico
+            const levelBars = $('#levelBars');
+            if(levelBars) {
+                levelBars.innerHTML = schools.map(school => {
+                    const level = Math.random() * 30 + 70;
+                    return `
+                        <div class="comparison-metric-row">
+                            <div class="school-name-label">${school.name.substring(0, 20)}${school.name.length > 20 ? '...' : ''}</div>
+                            <div class="metric-bar-wrapper">
+                                <div class="metric-progress-bar">
+                                    <div class="metric-progress-fill level-fill" style="width: ${level}%"></div>
+                                </div>
+                                <span class="metric-result">${level.toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Barras de programas
+            const programBars = $('#programBars');
+            if(programBars) {
+                programBars.innerHTML = schools.map(school => {
+                    const programs = Math.floor(Math.random() * 15) + 5;
+                    const maxPrograms = 20;
+                    const percentage = (programs / maxPrograms) * 100;
+                    return `
+                        <div class="comparison-metric-row">
+                            <div class="school-name-label">${school.name.substring(0, 20)}${school.name.length > 20 ? '...' : ''}</div>
+                            <div class="metric-bar-wrapper">
+                                <div class="metric-progress-bar">
+                                    <div class="metric-progress-fill programs-fill" style="width: ${percentage}%"></div>
+                                </div>
+                                <span class="metric-result">${programs}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Generar comparación de detalles
+        function generateDetailsComparison(schools) {
+            console.log('📋 Generando comparación de detalles');
+            const featuresComparison = $('#featuresComparison');
+            if(!featuresComparison) return;
+            
+            const features = [
+                'Matrícula Anual',
+                'Horario',
+                'Transporte',
+                'Cafetería',
+                'Biblioteca',
+                'Laboratorios',
+                'Deportes',
+                'Arte y Música',
+                'Tecnología',
+                'Idiomas'
+            ];
+            
+            featuresComparison.innerHTML = `
+                <div class="comparison-table">
+                    <div class="comparison-table-header">
+                        <h6>Comparación Detallada</h6>
+                    </div>
+                    ${features.map(feature => `
+                        <div class="comparison-row">
+                            <div class="feature-label">${feature}</div>
+                            ${schools.map(school => `
+                                <div class="feature-value">
+                                    <span class="school-name-column">${school.name}</span>
+                                    <span>${getRandomFeatureValue(feature)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Generar comparación de servicios
+        function generateServicesComparison(schools) {
+            console.log('🔧 Generando comparación de servicios');
+            const servicesGrid = $('#servicesComparisonGrid');
+            if(!servicesGrid) return;
+            
+            const serviceCategories = [
+                {
+                    title: 'Servicios Académicos',
+                    icon: 'academic-services-icon',
+                    services: ['Tutorías', 'Biblioteca Digital', 'Laboratorios', 'Aulas Especializadas']
+                },
+                {
+                    title: 'Actividades Extracurriculares',
+                    icon: 'extracurricular-icon',
+                    services: ['Deportes', 'Arte y Música', 'Clubes', 'Competencias']
+                },
+                {
+                    title: 'Servicios de Apoyo',
+                    icon: 'support-services-icon',
+                    services: ['Psicólogo', 'Enfermería', 'Orientación', 'Apoyo Académico']
+                },
+                {
+                    title: 'Infraestructura',
+                    icon: 'infrastructure-icon',
+                    services: ['Cafetería', 'Transporte', 'Estacionamiento', 'Seguridad']
+                }
+            ];
+            
+            servicesGrid.innerHTML = serviceCategories.map(category => `
+                <div class="service-category">
+                    <div class="service-category-title">
+                        <div class="category-icon ${category.icon}">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        ${category.title}
+                    </div>
+                    <div class="service-list">
+                        ${category.services.map(service => `
+                            <div class="service-item">
+                                <span class="service-name">${service}</span>
+                                ${schools.map(school => `
+                                    <div class="availability-indicator ${Math.random() > 0.3 ? 'available' : 'not-available'}">
+                                        ${Math.random() > 0.3 ? '✓' : '✗'}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función auxiliar para generar valores aleatorios
+        function getRandomFeatureValue(feature) {
+            const values = {
+                'Matrícula Anual': ['$8,500', '$12,000', '$15,500'],
+                'Horario': ['7:30 AM - 3:00 PM', '8:00 AM - 3:30 PM', '7:45 AM - 2:45 PM'],
+                'Transporte': ['Disponible', 'No disponible', 'Opcional'],
+                'Cafetería': ['Completa', 'Básica', 'No disponible'],
+                'Biblioteca': ['Digital + Física', 'Solo Física', 'Solo Digital'],
+                'Laboratorios': ['3 Labs', '5 Labs', '2 Labs'],
+                'Deportes': ['10+ Deportes', '5-9 Deportes', '1-4 Deportes'],
+                'Arte y Música': ['Programa Completo', 'Básico', 'No disponible'],
+                'Tecnología': ['1:1 Dispositivos', 'Compartidos', 'Limitado'],
+                'Idiomas': ['Español + Inglés', 'Solo Español', 'Trilingüe']
+            };
+            
+            const options = values[feature] || ['Disponible', 'No disponible'];
+            return options[Math.floor(Math.random() * options.length)];
+        }
+    </script>
+</body>
+</html>
