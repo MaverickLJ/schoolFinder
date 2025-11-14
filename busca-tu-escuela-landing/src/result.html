@@ -367,14 +367,14 @@
                 </div>
               </label>
               
-              <label class="sf-option sf-option-simple" data-filter="colegio">
-                <input type="checkbox" id="tColegio" onchange="updateFilters()">
+              <label class="sf-option sf-option-simple" data-filter="escuela">
+                <input type="checkbox" id="tEscuela" onchange="updateFilters()">
                 <div class="sf-option-content">
                   <div class="sf-option-check">
                     <i class="bi bi-check"></i>
                   </div>
                   <i class="bi bi-mortarboard"></i>
-                  <span class="sf-option-title">Colegio</span>
+                  <span class="sf-option-title">Escuela</span>
                   <span class="sf-option-count">445</span>
                 </div>
               </label>
@@ -1993,7 +1993,7 @@ function fakeSchool(i){
   const tipo = Math.random() < 0.55 ? "Público" : "Privado";
   return {
     id: String(i+1),
-    nombre: (Math.random()<0.5?'Colegio ':'Escuela ') + ['San Martín','Los Ángeles','Nueva Esperanza','Santa María','Innovación','Horizontes'][i%6],
+    nombre: 'Escuela ' + ['San Martín','Los Ángeles','Nueva Esperanza','Santa María','Innovación','Horizontes'][i%6],
     codigo: String(10000 + i),
     municipio: muni,
     rating, opiniones,
@@ -3420,8 +3420,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
       activeFilters.push({name: 'Jardín Infantil', id: 'tJardin'});
       filterSections.type++;
     }
-    if (document.getElementById('tColegio')?.checked) {
-      activeFilters.push({name: 'Colegio', id: 'tColegio'});
+    if (document.getElementById('tEscuela')?.checked) {
+      activeFilters.push({name: 'Escuela', id: 'tEscuela'});
       filterSections.type++;
     }
     if (document.getElementById('tInstituto')?.checked) {
